@@ -6,5 +6,8 @@
 - Output is in an `html` file 
 ## Key / Password Auth
 - On a private ip, script will skip any geo-checking
-### Password
-- ![1](https://user-images.githubusercontent.com/75596877/204693809-6a43d848-3111-4dd6-bc17-5b050a605bea.png)
+### Private IP Password Auth
+- ![1](https://user-images.githubusercontent.com/75596877/204693971-c0484740-2d6d-4293-8fc4-8e5388a05ba4.png)
+## Private IP Key Auth
+- ![2](https://user-images.githubusercontent.com/75596877/204694066-3cd8dec5-a63d-4d6f-a2d8-a0229b268414.png)
+
