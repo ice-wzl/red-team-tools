@@ -1,53 +1,63 @@
 #!/usr/bin/python3
 import sys
-import os
 import warnings
 import argparse
-from datetime import datetime
 warnings.filterwarnings(action='ignore', module='paramiko\.*')
 import paramiko
+from termcolor import cprint
 import logging
+
+#create the logger
+#give it a basic format, setting the output of the logger to stdout
+#set the logging level to ERROR
 log_format = "%(asctime)s - %(message)s"
 logging.basicConfig(format = log_format, stream=sys.stdout, level = logging.ERROR)
 logger = logging.getLogger()
 
 class REMOTECONNECT:
-
-    def __init__(self, host, username, password, key):
+    #create what is required for a remote connection, need a host, username, {password|key}, and port
+    def __init__(self, host, username, password, key, port):
         self.host = host
         self.username = username 
         self.password = password
         self.key = key
+        self.port = port
         self.client = None
         self.connect()
 
     def connect(self):
         try:
+            #initialize the client 
             self.client = paramiko.SSHClient()
+            #load all present system host keys 
             self.client.load_system_host_keys()
+            #allow the system to auto add if the remote host key is new to us (most likely will be)
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            #this is where we check to see if the user is connecting via password or via key 
             if self.key == None:
-                self.client.connect(hostname=self.host, username = self.username, password = self.password, timeout = 5)
+                self.client.connect(hostname=self.host, username = self.username, password = self.password, port = self.port, timeout = 10)
             else:
-                self.client.connect(hostname=self.host, username = self.username, key_filename = self.key, timeout = 5)
+                self.client.connect(hostname=self.host, username = self.username, key_filename = self.key, port = self.port, timeout = 10)
         except:
             logging.error("Target is down, or authentication failed...")
             sys.exit(1)
 
     def do_command(self, command):
         try:
+            #set stdin, stdout, and stderr all to the client....combine them all, we want output back to us either way if cmd was succ or not
             (stdin, stdout, stderr) = self.client.exec_command(command)
+            #setting the ability to readlines of stdout to a var to avoid messy code
             cmd_output = stdout.readlines()
+            #loop over the output returned from the cmd we just ran and print it back out to the user
+            #this is a good spot to check if they want us to shove it to a file or to stdout 
+            #this for loop prints all output back to the screen 
             for line in cmd_output:
-                print(line)            
+                print(line, end='')            
         except:
             logging.error("Bad command(s)")
             sys.exit(1)
-
-    def get_ssh_key(self):
-        pass
-
-
+        
 def banner():
     print('''
           ____
@@ -77,7 +87,7 @@ if __name__ == '__main__':
     parser.add_argument("-t", "--target", action="store", dest="target")
     parser.add_argument("-u", "--username", action="store", dest="username")
     parser.add_argument("-c", "--config", help="path to config file with commands to run on the remote host seperated by a new line.", action="store", dest="config")
-
+    parser.add_argument("-P", "--port", help="the remote port to connect to", action="store", dest="port")
     group_k_or_p = parser.add_mutually_exclusive_group(required=True)
     group_k_or_p.add_argument("-k", "--key", action="store", dest="key")
     group_k_or_p.add_argument("-p", "--password", action="store", dest="password")
@@ -87,17 +97,40 @@ if __name__ == '__main__':
     banner()
 
     try:
-        if not args.target or not args.username or not args.password and not args.key:
-            logging.error("Wrong number of args, require {username, target, password|key}")
-            sys.exit(1)
+        #check the right amount of args have been passed in via cmdline 
+        if not args.target or not args.username or not args.password or not args.config or not args.port and not args.key:
+            logging.error("Wrong number of args, require {username, target, password|key, port, config}")
+            sys.exit(2)
         else:
-            target_session = REMOTECONNECT(args.target, args.username, args.password, args.key)
-            target_session.connect()
-            logging.error("Connected to target...")
+            #instantiate the class with the required connection items 
+            target_session = REMOTECONNECT(args.target, args.username, args.password, args.key, args.port)
+            #return back the user input supplied via cmdline
+            cprint("Username: ", "red")
+            print("    " + args.username)
+            cprint("Password: ", "red")
+            print("    " + args.password)
+            cprint("Target: ", "red")
+            print("    " + args.target)
+            cprint("Port: ", "red")
+            print("    "  + args.port)
+            #check that the user is about to go where they thing with the right parameters
+            p = input("You are about to connect to: " + "\n" + "Are you sure?: (Y/n): ")
+            p = p.lower()
+            #if they have connect to the target, if not abort
+            if p == "yes" or p == "y":
+                target_session.connect()
+                #give them some feedback that it worked
+                logging.error("Connected to target...")
+                #open up the supplied config and read line by line 
+                input_file = open(args.config, 'r')
+                for line in input_file.readlines():
+                    #this print statment shows the cmd run remotely above the cmd output
+                    print(line.strip('\n'))
+                    #execute the command on the remote system, see above method
+                    target_session.do_command(line)
+            else:
+                print("Aborting...")
+                sys.exit(3)
 
-            input_file = open(args.config, 'r')
-            for line in input_file.readlines():
-                print(line.strip('\n'))
-                target_session.do_command(line)
-    except:
-        sys.exit(1)
+    except Exception as e:
+        print(e)
