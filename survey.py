@@ -36,11 +36,11 @@ class REMOTECONNECT:
             
             #this is where we check to see if the user is connecting via password or via key 
             if self.key == None:
-                self.client.connect(hostname=self.host, username = self.username, password = self.password, port = self.port, timeout = 10)
+                self.client.connect(hostname=self.host, username = self.username, password = self.password, port = self.port, timeout = 10, disabled_algorithms=None)
             else:
-                self.client.connect(hostname=self.host, username = self.username, key_filename = self.key, port = self.port, timeout = 10)
-        except:
-            logging.error("Target is down, or authentication failed...")
+                self.client.connect(hostname=self.host, username = self.username, key_filename = self.key, port = self.port, timeout = 10, disabled_algorithms=None)
+        except paramiko.SSHException as auth:
+            print(auth)
             sys.exit(1)
 
     def do_command(self, command):
@@ -104,20 +104,14 @@ if __name__ == '__main__':
         else:
             #instantiate the class with the required connection items 
             target_session = REMOTECONNECT(args.target, args.username, args.password, args.key, args.port)
-            #return back the user input supplied via cmdline
-            cprint("Username: ", "red")
-            print("    " + args.username)
-            cprint("Password: ", "red")
-            print("    " + args.password)
-            cprint("Target: ", "red")
+            #cant hurt to double check
+            cprint("Authentication Successful with:", "green")
             print("    " + args.target)
-            cprint("Port: ", "red")
-            print("    "  + args.port)
-            #check that the user is about to go where they thing with the right parameters
-            p = input("You are about to connect to: " + "\n" + "Are you sure?: (Y/n): ")
+            #check that the user is about to survey where they think
+            p = input("Are you sure you want to survey?: (Y/n): ")
             p = p.lower()
             #if they have connect to the target, if not abort
-            if p == "yes" or p == "y":
+            if p == "yes" or p == "y" or p == "":
                 target_session.connect()
                 #give them some feedback that it worked
                 logging.error("Connected to target...")
