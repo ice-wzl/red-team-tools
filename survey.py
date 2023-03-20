@@ -110,7 +110,7 @@ if __name__ == '__main__':
             #check that the user is about to survey where they think
             p = input("Are you sure you want to survey?: (Y/n): ")
             p = p.lower()
-            #if they have connect to the target, if not abort
+            #check user response, if no, abort
             if p == "yes" or p == "y" or p == "":
                 target_session.connect()
                 #give them some feedback that it worked
