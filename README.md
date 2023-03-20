@@ -9,8 +9,8 @@ id
 last
 who
 ps awwux --forest 
-ss -antpu 
-journalctl --verify 
+netstat -antpu 
+ls -la /var/log
 ````
 ## Help
 ````
