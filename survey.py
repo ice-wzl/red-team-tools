@@ -57,6 +57,16 @@ class REMOTECONNECT:
         except:
             logging.error("Bad command(s)")
             sys.exit(1)
+
+    #let the user run remote commands and save output to log file instead of printing to stdout 
+    def do_logged_command(self, command, logfile):
+        (stdin, stdout, stderr) = self.client.exec_command(command)
+        cmd_output = stdout.readlines()
+        for line in cmd_output:
+            logfile = open(args.logfile, "a+")
+            logfile.write(line)
+            logfile.close()
+                         
         
 def banner():
     print('''
@@ -88,6 +98,7 @@ if __name__ == '__main__':
     parser.add_argument("-u", "--username", action="store", dest="username")
     parser.add_argument("-c", "--config", help="path to config file with commands to run on the remote host seperated by a new line.", action="store", dest="config")
     parser.add_argument("-P", "--port", help="the remote port to connect to", action="store", dest="port")
+    parser.add_argument("-l", "--log", help="write command output to logfile instead of stdout", action="store", dest="logfile")
     group_k_or_p = parser.add_mutually_exclusive_group(required=True)
     group_k_or_p.add_argument("-k", "--key", action="store", dest="key")
     group_k_or_p.add_argument("-p", "--password", action="store", dest="password")
@@ -101,6 +112,29 @@ if __name__ == '__main__':
         if not args.target or not args.username or not args.password or not args.config or not args.port and not args.key:
             logging.error("Wrong number of args, require {username, target, password|key, port, config}")
             sys.exit(2)
+        #this is if user sets a log file, if they do we will log commands to specified logfile
+        elif args.logfile:
+            target_session = REMOTECONNECT(args.target, args.username, args.password, args.key, args.port)
+            cprint("Authentication Successful with:", "green")
+            print("    " + args.target)
+            #check that the user is about to survey where they think
+            p = input("Are you sure you want to survey?: (Y/n): ")
+            p = p.lower()
+            #check user response, if no, abort
+            if p == "yes" or p == "y" or p == "":
+                target_session.connect()
+                logging.error("Connected to target...")
+                #open up the supplied config and read line by line 
+                input_file = open(args.config, 'r')
+                for line in input_file.readlines():
+                    #open the log file in append mode, write the command about to be executed and close so we dont have an open file handle when it gets 
+                    #passed to the do_logged_command method
+                    logfile = open(args.logfile, 'a+')
+                    logfile.write(line)
+                    logfile.close()
+                    #print(line.strip('\n'))
+                    #execute the command on the remote system and log output to file not stdout, see above method
+                    target_session.do_logged_command(line, args.logfile)
         else:
             #instantiate the class with the required connection items 
             target_session = REMOTECONNECT(args.target, args.username, args.password, args.key, args.port)
