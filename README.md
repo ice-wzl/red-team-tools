@@ -64,3 +64,23 @@ root@10.0.0.5---> help
                 pwd      --> see current working directory 
                 clear    --> clear screen
 ````
+## How to upload 
+````
+root@10.0.0.5---> upload
+local file to put up: test.txt
+remote path for file: /tmp/.hidden.txt
+````
+## How to download 
+````
+root@10.0.0.5---> download
+remote file to grab: /etc/passwd
+Download Success /etc/passwd
+````
+- Verify that your download worked 
+````
+root@10.0.0.5---> lls .
+total 40
+drwxrwxr-x. 3 rocky rocky  159 Mar 23 16:48 .
+drwxrwxr-x. 3 rocky rocky   44 Mar 23 16:40 ..
+-rw-rw-r--. 1 rocky rocky 1790 Mar 23 16:48 passwd
+````
