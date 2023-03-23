@@ -7,6 +7,10 @@ import paramiko
 from termcolor import cprint
 import logging
 
+#TODO 
+#add in a remote walk method? dir / and recursively dir directories like root home etc, not like proc and that stuff 
+
+
 #create the logger
 #give it a basic format, setting the output of the logger to stdout
 #set the logging level to ERROR

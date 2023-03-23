@@ -1,0 +1,2 @@
+paramiko==3.0.0
+termcolor==2.2.0
