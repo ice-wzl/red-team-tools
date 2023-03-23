@@ -120,3 +120,56 @@ Mar 23 20:58:17 gitlab systemd[1]: Started Session 18 of User root.
 Mar 23 20:58:26 gitlab systemd[1]: ssh@6-10.0.0.5:22-10.0.0.3:45948.service: Deactivated successfully.
 Mar 23 20:58:26 gitlab systemd[1]: session-18.scope: Deactivated successfully.
 ````
+- `journalctl -xe`
+````
+A session with the ID 17 has been terminated.
+Mar 23 20:58:17 gitlab systemd[1]: Started OpenBSD Secure Shell server per-connection daemon (10.0.0.3:>
+░░ Subject: A start job for unit ssh@6-10.0.0.5:22-10.0.0.3:45948.service has finished successfully
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ A start job for unit ssh@6-10.0.0.5:22-10.0.0.3:45948.service has finished successfully.
+░░ 
+░░ The job identifier is 1428.
+Mar 23 20:58:17 gitlab sshd[1514]: Accepted password for root from 10.0.0.3 port 45948 ssh2
+Mar 23 20:58:17 gitlab sshd[1514]: pam_unix(sshd:session): session opened for user root(uid=0) by (uid=>
+Mar 23 20:58:17 gitlab systemd-logind[165]: New session 18 of user root.
+░░ Subject: A new session 18 has been created for user root
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ Documentation: sd-login(3)
+░░ 
+░░ A new session with the ID 18 has been created for the user root.
+░░ 
+░░ The leading process of the session is 1514.
+Mar 23 20:58:17 gitlab systemd[1]: Started Session 18 of User root.
+░░ Subject: A start job for unit session-18.scope has finished successfully
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ A start job for unit session-18.scope has finished successfully.
+░░ 
+░░ The job identifier is 1488.
+Mar 23 20:58:25 gitlab sshd[1514]: pam_unix(sshd:session): session closed for user root
+Mar 23 20:58:26 gitlab systemd[1]: ssh@6-10.0.0.5:22-10.0.0.3:45948.service: Deactivated successfully.
+░░ Subject: Unit succeeded
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ The unit ssh@6-10.0.0.5:22-10.0.0.3:45948.service has successfully entered the 'dead' state.
+Mar 23 20:58:26 gitlab systemd[1]: session-18.scope: Deactivated successfully.
+░░ Subject: Unit succeeded
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ The unit session-18.scope has successfully entered the 'dead' state.
+Mar 23 20:58:26 gitlab systemd-logind[165]: Session 18 logged out. Waiting for processes to exit.
+Mar 23 20:58:26 gitlab systemd-logind[165]: Removed session 18.
+░░ Subject: Session 18 has been terminated
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ Documentation: sd-login(3)
+░░ 
+░░ A session with the ID 18 has been terminated.
+````
+- These are the three places where logs will occur.  From testing, no other logging locations appeared to update.
