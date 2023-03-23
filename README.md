@@ -84,3 +84,39 @@ drwxrwxr-x. 3 rocky rocky  159 Mar 23 16:48 .
 drwxrwxr-x. 3 rocky rocky   44 Mar 23 16:40 ..
 -rw-rw-r--. 1 rocky rocky 1790 Mar 23 16:48 passwd
 ````
+## Logging Considerations 
+## transport.py 
+- For a file download this is what logging will look like, we are working to mitigate some of these:
+- `/var/log/auth.log`
+````
+Mar 23 20:53:45 gitlab sshd[1374]: Accepted password for root from 10.0.0.3 port 39982 ssh2
+Mar 23 20:53:45 gitlab sshd[1374]: pam_unix(sshd:session): session opened for user root(uid=0) by (uid=0)
+Mar 23 20:53:45 gitlab systemd-logind[165]: New session 15 of user root.
+Mar 23 20:53:49 gitlab sshd[1374]: pam_unix(sshd:session): session closed for user root
+Mar 23 20:53:49 gitlab systemd-logind[165]: Session 15 logged out. Waiting for processes to exit.
+Mar 23 20:53:49 gitlab systemd-logind[165]: Removed session 15.
+````
+- File upload:
+````
+Mar 23 20:56:11 gitlab sshd[1430]: Accepted password for root from 10.0.0.3 port 54274 ssh2
+Mar 23 20:56:11 gitlab sshd[1430]: pam_unix(sshd:session): session opened for user root(uid=0) by (uid=0)
+Mar 23 20:56:11 gitlab systemd-logind[165]: New session 16 of user root.
+Mar 23 20:56:17 gitlab sshd[1430]: pam_unix(sshd:session): session closed for user root
+Mar 23 20:56:17 gitlab systemd-logind[165]: Session 16 logged out. Waiting for processes to exit.
+Mar 23 20:56:17 gitlab systemd-logind[165]: Removed session 16.
+````
+- `/var/log/syslog`
+- File download:
+````
+Mar 23 20:57:45 gitlab systemd[1]: Started OpenBSD Secure Shell server per-connection daemon (10.0.0.3:36874).
+Mar 23 20:57:45 gitlab systemd[1]: Started Session 17 of User root.
+Mar 23 20:57:48 gitlab systemd[1]: ssh@5-10.0.0.5:22-10.0.0.3:36874.service: Deactivated successfully.
+Mar 23 20:57:48 gitlab systemd[1]: session-17.scope: Deactivated successfully.
+````
+- File upload:
+````
+Mar 23 20:58:17 gitlab systemd[1]: Started OpenBSD Secure Shell server per-connection daemon (10.0.0.3:45948).
+Mar 23 20:58:17 gitlab systemd[1]: Started Session 18 of User root.
+Mar 23 20:58:26 gitlab systemd[1]: ssh@6-10.0.0.5:22-10.0.0.3:45948.service: Deactivated successfully.
+Mar 23 20:58:26 gitlab systemd[1]: session-18.scope: Deactivated successfully.
+````
