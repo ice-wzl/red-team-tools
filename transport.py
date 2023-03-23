@@ -79,7 +79,6 @@ if __name__ == '__main__':
     banner()
 
 #TODO 
-#not suck
 
     try:
         if not args.target or not args.username or not args.password:
@@ -111,6 +110,8 @@ if __name__ == '__main__':
                     os.system('cat ' + read_in_user_input.split(" ")[1])
                 elif read_in_user_input.split(" ")[0] == "lls":
                     print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
+                elif read_in_user_input == "clear":
+                    os.system("clear")
                 elif read_in_user_input == "help":
                     print('''
                 exit     --> exit program
