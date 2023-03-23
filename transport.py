@@ -8,24 +8,32 @@ import paramiko
 import logging
 from termcolor import cprint
 import subprocess
-
+#set up the logger
 log_format = "%(asctime)s - %(message)s"
 logging.basicConfig(format = log_format, stream=sys.stdout, level = logging.ERROR)
 logger = logging.getLogger()
 
+#set up the class need host, port, username, password, key for connection 
+#also will need transport and sftp 
 class SFTPTransfer:
-    def __init__(self, host, port, username, password):
+    def __init__(self, host, port, username, password, key):
         self.host = host
         self.username = username 
         self.password = password
         self.port = port
+        self.key = key
         self.transport = None
         self.sftp = None 
 
     def connect(self):
         try:
             self.transport = paramiko.Transport((self.host, int(self.port)))
-            self.transport.connect(hostkey=None, username=self.username, password=self.password)
+            #--------------------------------------
+            if self.key == None:
+                self.transport.connect(hostkey=None, username=self.username, password=self.password)
+            else: 
+                self.transport.connect(hostkey=None, username=self.username, pkey=self.key)
+            #--------------------------------------
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         except paramiko.AuthenticationException as e:
             print("Authentication Failed: " + e)
@@ -73,7 +81,9 @@ if __name__ == '__main__':
     parser.add_argument("-t", "--target", action="store", dest="target")
     parser.add_argument("-P", "--port", action="store", dest="port")
     parser.add_argument("-u", "--username", action="store", dest="username")
-    parser.add_argument("-p", "--password", action="store", dest="password")
+    group_k_or_p = parser.add_mutually_exclusive_group(required=True)
+    group_k_or_p.add_argument("-k", "--key", action="store", dest="key")
+    group_k_or_p.add_argument("-p", "--password", action="store", dest="password")
     
     args = parser.parse_args()
     banner()
@@ -81,14 +91,15 @@ if __name__ == '__main__':
 #TODO 
 
     try:
-        if not args.target or not args.username or not args.password:
-            logging.error("Wrong number of args, require {username, target, password}")
+        if not args.target or not args.username or not args.port or not args.password and not args.key:
+            logging.error("Wrong number of args, require {username, target, port, password|key}")
             sys.exit(2)
         else:
             while True:
-                transfer = SFTPTransfer(args.target, args.port, args.username, args.password)
+                transfer = SFTPTransfer(args.target, args.port, args.username, args.password, args.key)
                 read_in_user_input = input(transfer.prompt())
                 read_in_user_input = read_in_user_input.lower()
+                read_in_user_input = read_in_user_input.rstrip()
                 if read_in_user_input == "exit":
                     sys.exit(10)
                 elif read_in_user_input == "upload":
@@ -96,6 +107,7 @@ if __name__ == '__main__':
                     local_path = input("local file to put up: ")
                     remote_path = input("remote path for file: ")
                     transfer.remote_upload(remote_path, local_path)
+                    print("Upload Success " + remote_path)
                     transfer.disconnect()
                 elif read_in_user_input == "download":
                     transfer.connect() 
@@ -109,7 +121,10 @@ if __name__ == '__main__':
                 elif read_in_user_input.split(" ")[0] == "cat":
                     os.system('cat ' + read_in_user_input.split(" ")[1])
                 elif read_in_user_input.split(" ")[0] == "lls":
-                    print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
+                    if len(read_in_user_input.split(" ")) == 1:
+                        print(subprocess.check_output(['ls', '-la']).decode('utf-8'))
+                    else:
+                        print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
                 elif read_in_user_input == "clear":
                     os.system("clear")
                 elif read_in_user_input == "help":
