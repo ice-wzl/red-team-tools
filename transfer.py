@@ -3,11 +3,19 @@ import sys
 import os
 import warnings
 import argparse
+
+from termcolor import cprint
 warnings.filterwarnings(action='ignore', module='paramiko\.*')
 import paramiko
 import logging
-from termcolor import cprint
 import subprocess
+
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.styles import Style
+####new additions####
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit import prompt
 
 #set up the logger
 log_format = "%(asctime)s - %(message)s"
@@ -40,8 +48,7 @@ class SFTPTransfer:
     def remote_download(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
-        self.sftp.get(remote_path, local_path)
-
+            self.sftp.get(remote_path, local_path)
     def remote_upload(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
@@ -53,12 +60,8 @@ class SFTPTransfer:
         if self.transport:
             self.transport.close()
 
-    def prompt(self):
-        p = self.username + "@" + self.host + "---> "
-        return p
-
 def banner():
-    print('''
+    cprint('''
       __             __
    .-'.'     .-.     '.'-.
  .'.((      ( ^ `>     )).'.
@@ -70,11 +73,10 @@ def banner():
      ````` /T"Y"T\ `````
           / | | | \    transport v1.0
          `'`'`'`'`'`   Created By: ice-wzl
-    ''')
-
-
+    ''', 'light_cyan', attrs=['bold'])
 
 if __name__ == '__main__':
+    
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-t", "--target", action="store", dest="target")
@@ -87,6 +89,29 @@ if __name__ == '__main__':
     args = parser.parse_args()
     banner()
 
+
+    style = Style.from_dict({
+    # User input (default text).
+        '':          '#ff0066',
+    # Prompt.
+        'username': '#BBEEFF',
+        'at':       '#00aa00',
+        'colon':    '#EAF76B',
+        'pound':    '#00aa00',
+        'host':     '#00ffff bg:#444400',
+        #'path':     'ansicyan underline',
+    })
+    message = [
+        ('class:username', args.username),
+        ('class:at',       '@'),
+        ('class:host',     args.target),
+        ('class:colon',    ':'),
+        #('class:path',     os.getcwd()),
+        ('class:pound',    '# '),
+    ]
+
+    html_completer = WordCompleter(['lcd', 'lls', 'upload', 'download', 'exit', 'pwd', 'cat', 'clear'])
+
 #TODO 
 
     try:
@@ -96,7 +121,9 @@ if __name__ == '__main__':
         else:
             while True:
                 transfer = SFTPTransfer(args.target, args.port, args.username, args.password, args.key)
-                read_in_user_input = input(transfer.prompt())
+                
+                session = PromptSession(history=FileHistory('history.txt'))
+                read_in_user_input = session.prompt(message=message, style=style, completer=html_completer)
                 read_in_user_input = read_in_user_input.lower()
                 read_in_user_input = read_in_user_input.rstrip()
                 if read_in_user_input == "exit":
@@ -140,6 +167,7 @@ if __name__ == '__main__':
                 clear    --> clear screen''')
                 elif "lcd" in read_in_user_input:
                     os.chdir(read_in_user_input.split(" ")[1])
+                    session.prompt(message=message, style=style)
                 else:
                     print("Unknown Command, run help to see your options.")
 
