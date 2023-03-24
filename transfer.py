@@ -8,6 +8,7 @@ import paramiko
 import logging
 from termcolor import cprint
 import subprocess
+
 #set up the logger
 log_format = "%(asctime)s - %(message)s"
 logging.basicConfig(format = log_format, stream=sys.stdout, level = logging.ERROR)
@@ -57,7 +58,7 @@ class SFTPTransfer:
         return p
 
 def banner():
-    cprint('''
+    print('''
       __             __
    .-'.'     .-.     '.'-.
  .'.((      ( ^ `>     )).'.
