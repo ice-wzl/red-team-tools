@@ -49,7 +49,7 @@ class SFTPTransfer:
     def remote_download(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
-            self.sftp.get(remote_path, local_path)
+        self.sftp.get(remote_path, local_path)
     def remote_upload(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
