@@ -139,7 +139,13 @@ if __name__ == '__main__':
                 elif read_in_user_input == "download":
                     transfer.connect() 
                     remote_path = input("remote file to grab: ")
-                    local_path = os.getcwd() + "/" + remote_path.split("/")[-1]
+                    target_dir = os.getcwd() + "/" + transfer.host
+                    if not os.path.exists(target_dir):
+                        os.mkdir(target_dir)
+                    local_path_dir = target_dir + "/".join(remote_path.split("/")[:-1])
+                    if not os.path.exists(local_path_dir):
+                        os.makedirs(local_path_dir)
+                    local_path = local_path_dir + "/" + remote_path.split("/")[-1]
                     transfer.remote_download(remote_path, local_path)
                     print("Download Success " + remote_path)
                     transfer.disconnect()
