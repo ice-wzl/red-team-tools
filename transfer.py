@@ -40,7 +40,8 @@ class SFTPTransfer:
             if self.key == None:
                 self.transport.connect(hostkey=None, username=self.username, password=self.password)
             else: 
-                self.transport.connect(hostkey=None, username=self.username, pkey=self.key)
+                self.transport.connect(hostkey=None, username=self.username,
+                        pkey=paramiko.RSAKey(file_obj=open(self.key,'r')))
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         except paramiko.AuthenticationException as e:
             print("Authentication Failed: " + e)
