@@ -3,6 +3,7 @@ import sys
 import os
 import warnings
 import argparse
+import threading
 
 from termcolor import cprint
 warnings.filterwarnings(action='ignore', module='paramiko\.*')
@@ -16,11 +17,36 @@ from prompt_toolkit.styles import Style
 ####new additions####
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
+from prompt_toolkit.shortcuts import ProgressBar
 
 #set up the logger
 log_format = "%(asctime)s - %(message)s"
 logging.basicConfig(format = log_format, stream=sys.stdout, level = logging.ERROR)
 logger = logging.getLogger()
+
+class TransferProgress:
+    def __init__(self, total):
+        self.num = 0
+        self.n = total
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.num < self.n:
+            return self.num
+        raise StopIteration()
+
+    def __len__(self):
+        return self.n
+
+    def set_progress(self, progress):
+        self.num = progress
+
+def pb_func(tp):
+    with ProgressBar() as pb:
+        for _ in pb(tp):
+            continue
 
 #set up the class need host, port, username, password, key for connection 
 #also will need transport and sftp 
@@ -40,7 +66,8 @@ class SFTPTransfer:
             if self.key == None:
                 self.transport.connect(hostkey=None, username=self.username, password=self.password)
             else: 
-                self.transport.connect(hostkey=None, username=self.username, pkey=self.key)
+                self.transport.connect(hostkey=None, username=self.username,
+                        pkey=paramiko.RSAKey(file_obj=open(self.key,'r')))
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         except paramiko.AuthenticationException as e:
             print("Authentication Failed: " + e)
@@ -48,7 +75,15 @@ class SFTPTransfer:
     def remote_download(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
-            self.sftp.get(remote_path, local_path)
+        file_size = self.sftp.stat(remote_path).st_size
+        trans_prog = TransferProgress(file_size)
+        pb_thread = threading.Thread(target=pb_func,args=(trans_prog,))
+        def tx_cb(trans, total):
+            nonlocal trans_prog
+            trans_prog.set_progress(trans)
+        pb_thread.daemon = True
+        pb_thread.start()
+        self.sftp.get(remote_path, local_path, callback=tx_cb)
     def remote_upload(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
@@ -138,7 +173,13 @@ if __name__ == '__main__':
                 elif read_in_user_input == "download":
                     transfer.connect() 
                     remote_path = input("remote file to grab: ")
-                    local_path = os.getcwd() + "/" + remote_path.split("/")[-1]
+                    target_dir = os.getcwd() + "/" + transfer.host
+                    if not os.path.exists(target_dir):
+                        os.mkdir(target_dir)
+                    local_path_dir = target_dir + "/".join(remote_path.split("/")[:-1])
+                    if not os.path.exists(local_path_dir):
+                        os.makedirs(local_path_dir)
+                    local_path = local_path_dir + "/" + remote_path.split("/")[-1]
                     transfer.remote_download(remote_path, local_path)
                     print("Download Success " + remote_path)
                     transfer.disconnect()
