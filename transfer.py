@@ -63,6 +63,7 @@ class SFTPTransfer:
     def connect(self):
         try:
             self.transport = paramiko.Transport((self.host, int(self.port)))
+            #check to see if the user is passing in a password or a key for authentication 
             if self.key == None:
                 self.transport.connect(hostkey=None, username=self.username, password=self.password)
             else: 
@@ -72,10 +73,14 @@ class SFTPTransfer:
         except paramiko.AuthenticationException as e:
             print("Authentication Failed: " + e)
 
+    #remote download file from host 
     def remote_download(self, remote_path, local_path):
+        #ensure self.sftp is set, if for some reason it is not set it now to avoid errors
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
+        #get the file size for the remote file, should probably have a large file warning in the future 
         file_size = self.sftp.stat(remote_path).st_size
+        #create trans_prog and set it = to the transfer progress to the size of the remote file 
         trans_prog = TransferProgress(file_size)
         pb_thread = threading.Thread(target=pb_func,args=(trans_prog,))
         def tx_cb(trans, total):
