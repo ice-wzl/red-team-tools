@@ -166,7 +166,7 @@ if __name__ == '__main__':
         'at':       '#00aa00',
         'colon':    '#EAF76B',
         'pound':    '#00aa00',
-        'host':     '#00ffff bg:#444400',
+        'host':     '#00ffff',
         #'path':     'ansicyan underline',
     })
     message = [
@@ -180,6 +180,28 @@ if __name__ == '__main__':
 
     html_completer = WordCompleter(['lcd', 'lls', 'upload', 'download', 'exit', 'pwd', 'cat', 'clear'])
 
+    def do_upload():
+        transfer.connect()
+        local_path = input("local file to put up: ")
+        remote_path = input("remote path for file: ")
+        transfer.remote_upload(remote_path, local_path)
+        print("Upload Success " + remote_path)
+        transfer.disconnect()
+
+    def do_download():
+        transfer.connect() 
+        remote_path = input("remote file to grab: ")
+        target_dir = os.getcwd() + "/" + transfer.host
+        if not os.path.exists(target_dir):
+            os.mkdir(target_dir)
+        local_path_dir = target_dir + "/".join(remote_path.split("/")[:-1])
+        if not os.path.exists(local_path_dir):
+            os.makedirs(local_path_dir)
+        local_path = local_path_dir + "/" + remote_path.split("/")[-1]
+        transfer.remote_download(remote_path, local_path)
+        print("Download Success " + remote_path)
+        transfer.disconnect()
+
     def do_cat():
         os.system('cat ' + read_in_user_input.split(" ")[1])
 
@@ -188,9 +210,9 @@ if __name__ == '__main__':
             print(subprocess.check_output(['ls', '-la']).decode('utf-8'))
         else:
             print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
-
-
-
+    
+    def do_lcd():
+        os.chdir(read_in_user_input.split(" ")[1])
 
 #TODO 
 
@@ -209,35 +231,14 @@ if __name__ == '__main__':
                 if read_in_user_input == "exit":
                     sys.exit(10)
                 elif read_in_user_input == "upload":
-                    transfer.connect()
-                    local_path = input("local file to put up: ")
-                    remote_path = input("remote path for file: ")
-                    transfer.remote_upload(remote_path, local_path)
-                    print("Upload Success " + remote_path)
-                    transfer.disconnect()
+                    do_upload()
                 elif read_in_user_input == "download":
-                    transfer.connect() 
-                    remote_path = input("remote file to grab: ")
-                    target_dir = os.getcwd() + "/" + transfer.host
-                    if not os.path.exists(target_dir):
-                        os.mkdir(target_dir)
-                    local_path_dir = target_dir + "/".join(remote_path.split("/")[:-1])
-                    if not os.path.exists(local_path_dir):
-                        os.makedirs(local_path_dir)
-                    local_path = local_path_dir + "/" + remote_path.split("/")[-1]
-                    transfer.remote_download(remote_path, local_path)
-                    print("Download Success " + remote_path)
-                    transfer.disconnect()
+                    do_download()
                 elif read_in_user_input == "pwd":
                    print(os.getcwd())
                 elif read_in_user_input.split(" ")[0] == "cat":
-                    #os.system('cat ' + read_in_user_input.split(" ")[1])
                     do_cat()
                 elif read_in_user_input.split(" ")[0] == "lls":
-                    #if len(read_in_user_input.split(" ")) == 1:
-                    #    print(subprocess.check_output(['ls', '-la']).decode('utf-8'))
-                    #else:
-                    #    print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
                     do_lls()
                 elif read_in_user_input == "clear":
                     os.system("clear")
@@ -254,7 +255,7 @@ if __name__ == '__main__':
                 pwd      --> see current working directory 
                 clear    --> clear screen''')
                 elif "lcd" in read_in_user_input:
-                    os.chdir(read_in_user_input.split(" ")[1])
+                    do_lcd()
                 else:
                     print("Unknown Command, run help to see your options.")
 
