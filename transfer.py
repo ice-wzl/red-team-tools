@@ -180,6 +180,18 @@ if __name__ == '__main__':
 
     html_completer = WordCompleter(['lcd', 'lls', 'upload', 'download', 'exit', 'pwd', 'cat', 'clear'])
 
+    def do_cat():
+        os.system('cat ' + read_in_user_input.split(" ")[1])
+
+    def do_lls():
+        if len(read_in_user_input.split(" ")) == 1:
+            print(subprocess.check_output(['ls', '-la']).decode('utf-8'))
+        else:
+            print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
+
+
+
+
 #TODO 
 
     try:
@@ -190,7 +202,7 @@ if __name__ == '__main__':
             while True:
                 transfer = SFTPTransfer(args.target, args.port, args.username, args.password, args.key)
                 
-                session = PromptSession(history=FileHistory('history.txt'))
+                session = PromptSession()
                 read_in_user_input = session.prompt(message=message, style=style, completer=html_completer)
                 read_in_user_input = read_in_user_input.lower()
                 read_in_user_input = read_in_user_input.rstrip()
@@ -219,12 +231,14 @@ if __name__ == '__main__':
                 elif read_in_user_input == "pwd":
                    print(os.getcwd())
                 elif read_in_user_input.split(" ")[0] == "cat":
-                    os.system('cat ' + read_in_user_input.split(" ")[1])
+                    #os.system('cat ' + read_in_user_input.split(" ")[1])
+                    do_cat()
                 elif read_in_user_input.split(" ")[0] == "lls":
-                    if len(read_in_user_input.split(" ")) == 1:
-                        print(subprocess.check_output(['ls', '-la']).decode('utf-8'))
-                    else:
-                        print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
+                    #if len(read_in_user_input.split(" ")) == 1:
+                    #    print(subprocess.check_output(['ls', '-la']).decode('utf-8'))
+                    #else:
+                    #    print(subprocess.check_output(['ls', '-la', read_in_user_input.split(" ")[1]]).decode('utf-8'))
+                    do_lls()
                 elif read_in_user_input == "clear":
                     os.system("clear")
                 elif read_in_user_input == "help":
@@ -241,7 +255,6 @@ if __name__ == '__main__':
                 clear    --> clear screen''')
                 elif "lcd" in read_in_user_input:
                     os.chdir(read_in_user_input.split(" ")[1])
-                    session.prompt(message=message, style=style)
                 else:
                     print("Unknown Command, run help to see your options.")
 
