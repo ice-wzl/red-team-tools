@@ -4,6 +4,7 @@ import os
 import warnings
 import argparse
 import threading
+from time import sleep
 
 from termcolor import cprint
 warnings.filterwarnings(action='ignore', module='paramiko\.*')
@@ -18,34 +19,61 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import ProgressBar
+from prompt_toolkit.styles import Style
+from prompt_toolkit.shortcuts.progress_bar import formatters
 
 #set up the logger
 log_format = "%(asctime)s - %(message)s"
 logging.basicConfig(format = log_format, stream=sys.stdout, level = logging.ERROR)
 logger = logging.getLogger()
 
+# style and formatters for the transfer bar
+style = Style.from_dict({
+    'label': 'bg:#ffff00 #000000',
+    'percentage': 'bg:#ffff00 #000000',
+    'current': '#448844',
+    'bar': '',
+})
+
+custom_formatters = [
+        formatters.Label(),
+        formatters.Text(': [', style='class:percentage'),
+        formatters.Percentage(),
+        formatters.Text(']', style='class:percentage'),
+        formatters.Text(' '),
+        formatters.Bar(sym_a='!', sym_b ='!', sym_c='.'),
+        formatters.Text('  '),
+]
+
 class TransferProgress:
     def __init__(self, total):
-        self.num = 0
-        self.n = total
+        self.progress = 0
+        self.total = total
+        self.cur = 0
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self.num < self.n:
-            return self.num
+        if self.cur < self.total:
+            # slight modification; need one stepper var and one var to track the chunks paramiko
+            # gives
+            # progress will be paramiko's reports; step cur as bytes are rcved
+            while self.cur >= self.progress:
+                sleep(0.01)
+            self.cur += 1
+            return self.cur
         raise StopIteration()
 
     def __len__(self):
-        return self.n
+        return self.total
 
     def set_progress(self, progress):
-        self.num = progress
+        self.progress = progress
 
 def pb_func(tp):
-    with ProgressBar() as pb:
-        for _ in pb(tp):
+    with ProgressBar(style=style, formatters=custom_formatters) as pb:
+        for _ in pb(tp, label='Downloading'):
             continue
 
 #set up the class need host, port, username, password, key for connection 
@@ -80,15 +108,15 @@ class SFTPTransfer:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         #get the file size for the remote file, should probably have a large file warning in the future 
         file_size = self.sftp.stat(remote_path).st_size
-        #create trans_prog and set it = to the transfer progress to the size of the remote file 
         trans_prog = TransferProgress(file_size)
         pb_thread = threading.Thread(target=pb_func,args=(trans_prog,))
         def tx_cb(trans, total):
             nonlocal trans_prog
             trans_prog.set_progress(trans)
-        pb_thread.daemon = True
         pb_thread.start()
         self.sftp.get(remote_path, local_path, callback=tx_cb)
+        # wait until pb_thread is complete before returning
+        pb_thread.join()
     def remote_upload(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
