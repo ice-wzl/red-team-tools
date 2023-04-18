@@ -7,7 +7,6 @@ from termcolor import cprint
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
-####new additions####
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import ProgressBar
@@ -29,7 +28,7 @@ message = [
     ('class:host',     'localhost'),
     ('class:arrow',    '--> '),
     ]
-
+#create the prompt suggester
 html_completer = WordCompleter(['view', 'create', 'delete', 'add', 'exit'])
 
 def do_view():
