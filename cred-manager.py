@@ -28,13 +28,9 @@ message = [
     ('class:host',     'localhost'),
     ('class:arrow',    '--> '),
     ]
-<<<<<<< HEAD
 
-html_completer = WordCompleter(['view', 'create', 'delete', 'delrow', 'add', 'exit'])
-=======
 #create the prompt suggester
-html_completer = WordCompleter(['view', 'create', 'delete', 'add', 'exit'])
->>>>>>> 123257837b0d3a4f1f05a7a22e85e68430f5fe3e
+html_completer = WordCompleter(['view', 'create', 'delete', 'delrow', 'add', 'exit'])
 
 def do_view():
     if os.stat('storage.db')[6] <= 1:
