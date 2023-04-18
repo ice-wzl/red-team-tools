@@ -86,10 +86,12 @@ Download Success /etc/passwd
 │   └── etc
 │       └── passwd
 ````
+- `lls`
+````
 root@10.0.0.5---> lls .
 total 40
 drwxrwxr-x. 3 rocky rocky  159 Mar 23 16:48 .
 drwxrwxr-x. 3 rocky rocky   44 Mar 23 16:40 ..
 -rw-rw-r--. 1 rocky rocky 1790 Mar 23 16:48 passwd
 ````
-
+- The other commands are common linux commands.
