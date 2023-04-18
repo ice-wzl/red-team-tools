@@ -103,7 +103,7 @@ drwxrwxr-x. 3 rocky rocky   44 Mar 23 16:40 ..
 ## create
 - Creates database and table called `TARGETS`
 ````
-localhost--> create                                                                                                                                
+localhost--> create
 Table Created
 ````
 ## view
