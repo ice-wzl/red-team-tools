@@ -1,8 +1,8 @@
 # Survey
 # Installation 
 ````
-git clone https://github.com/ice-wzl/survey.git
-cd survey/
+git clone https://github.com/ice-wzl/red-team-tools.git
+cd red-team-tools/
 pip install requirements.txt
 ````
 # survey.py
@@ -72,11 +72,21 @@ remote path for file: /tmp/.hidden.txt
 ````
 ## How to download 
 ````
-root@10.0.0.5---> download
+root@10.0.0.5:# download                                                                                                          
 remote file to grab: /etc/passwd
+Downloading: [100.0%] [!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]  
 Download Success /etc/passwd
 ````
 - Verify that your download worked 
+- Download will rebuilt the target file system on your local machine 
+````
+[rocky@rocky red-team-tools]$ tree
+.
+├── 10.0.0.5
+│   └── etc
+│       └── passwd
+````
+- `lls`
 ````
 root@10.0.0.5---> lls .
 total 40
@@ -84,4 +94,36 @@ drwxrwxr-x. 3 rocky rocky  159 Mar 23 16:48 .
 drwxrwxr-x. 3 rocky rocky   44 Mar 23 16:40 ..
 -rw-rw-r--. 1 rocky rocky 1790 Mar 23 16:48 passwd
 ````
-
+- The other commands are common linux commands.
+# cred-manager.py 
+## Overview 
+- Script will manage your credentials for all targets on an engagement.  Ive found this helpful in large enterprises where storing all those key accounts is not practical.
+- This helps when you have like 20-50 credentials and you want to keep track of the username, password and ip address of where they came from.
+- This is not designed to keep track of 10000 user credentials, unless you want to enter those all in by hand (I do not).
+## create
+- Creates database and table called `TARGETS`
+````
+localhost--> create
+Table Created
+````
+## view
+- See what is currently saved
+````
+localhost--> view
+Data in Table:
+(1, '10.10.10.100', 'Administrator', 'Passw0rd')
+(2, '10.10.10.101', 'Ryan', 'Password123!@#')
+````
+## add
+````
+localhost--> add
+Enter unique ID: 1
+Enter IP Address: 10.10.10.100
+Enter Username: Administrator
+Enter Password: Passw0rd
+````
+## help
+````
+localhost--> help
+{Create | View | Add | Delete | Exit}
+````
