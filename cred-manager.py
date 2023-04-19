@@ -32,6 +32,21 @@ message = [
 #create the prompt suggester
 html_completer = WordCompleter(['view', 'create', 'delete', 'delrow', 'add', 'exit'])
 
+def banner():
+    print("""
+   ,   ,
+  /////|
+ ///// |
+|~~~|  |
+|===|  |
+|j  |  |
+| g |  | -ice-wzl
+|  t| /  -cred-manger v1.0
+|===|/
+'---'
+    """)
+
+
 def do_view():
     if os.stat('storage.db')[6] <= 1:
         print("Nothing created yet...create first")
@@ -70,7 +85,7 @@ def do_delrow():
         ID = input("Enter unique ID to delete: ")
         cursor.execute("""DELETE FROM TARGETS WHERE ID = %s""" % (ID))
         conn.commit()    
-
+banner()
 while True:
     session = PromptSession()
     options = session.prompt(message=message, style=style, completer=html_completer)
@@ -90,7 +105,7 @@ while True:
     elif options == "delrow":
         do_delrow()
     else:
-        cprint("{Create | View | Add | Delete | Exit}", "blue", attrs=['bold'])
+        cprint("{create | view | add | delete | delrow | exit}", "blue", attrs=['bold'])
 
 conn.close()
 
