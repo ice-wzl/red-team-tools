@@ -15,7 +15,6 @@ import subprocess
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
-####new additions####
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import ProgressBar
@@ -117,11 +116,12 @@ class SFTPTransfer:
         self.sftp.get(remote_path, local_path, callback=tx_cb)
         # wait until pb_thread is complete before returning
         pb_thread.join()
+
     def remote_upload(self, remote_path, local_path):
         if self.sftp is None:
             self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         self.sftp.put(local_path, remote_path)
-    
+
     def disconnect(self):
         if self.sftp:
             self.sftp.close()
@@ -183,10 +183,13 @@ if __name__ == '__main__':
     def do_upload():
         transfer.connect()
         local_path = input("local file to put up: ")
-        remote_path = input("remote path for file: ")
-        transfer.remote_upload(remote_path, local_path)
-        print("Upload Success " + remote_path)
-        transfer.disconnect()
+        if os.path.exists(local_path):
+            remote_path = input("remote path for file: ")
+            transfer.remote_upload(remote_path, local_path)
+            print("Upload Success " + remote_path)
+            transfer.disconnect()
+        else:
+            print(local_path + " does not exist...")
 
     def do_download():
         transfer.connect() 
