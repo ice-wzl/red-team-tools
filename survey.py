@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     try:
         #check the right amount of args have been passed in via cmdline 
-        if not args.target or not args.username or not args.password or not args.config or not args.port and not args.key:
+        if not args.target or not args.username or not args.password and not args.key or not args.config or not args.port:
             logging.error("Wrong number of args, require {username, target, password|key, port, config}")
             sys.exit(2)
         #this is if user sets a log file, if they do we will log commands to specified logfile
