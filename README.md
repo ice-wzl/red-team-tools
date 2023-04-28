@@ -148,6 +148,7 @@ optional arguments:
   --version             show program's version number and exit
 ````
 ### client.py 
+````
 python3 client.py -h
 usage: client.py [-h] [-i IPADDRESS] [-p PORT] [-f FILE] [-b BLEND] [-v] [--version]
 
@@ -165,7 +166,7 @@ optional arguments:
   ### Walkthrough 
   - Host the file you want 
   ````
-  [rocky@rocky http-server]$ python3 server.py -i 10.0.0.3 -p 8080 -f linpeas.sh
+python3 server.py -i 10.0.0.3 -p 8080 -f linpeas.sh
 🔨 Server hosting lipeas.sh as index.html at 10.0.0.3 on port 8080 🔨
 
 Run on the client (change the -b option to something that blends): 
@@ -197,7 +198,7 @@ Sent encrypted file with MD5: 8ab5d0c7f44936baadb414ad5435eed1
 ````
 - Once the password is entered the client will tell you the file is decrypted and it will ne named whatever your `-b` parameter was set to 
 ````
-[rocky@rocky secure-http]$ python3 client.py -i 10.0.0.3 -p 8080 -f index.html -b hidden-file
+python3 client.py -i 10.0.0.3 -p 8080 -f index.html -b hidden-file
 receiving data...
 Success
 Connection closed
@@ -209,7 +210,7 @@ File Decrypted
 ````
 - The encrypted `index.html`
 ````
-[rocky@rocky secure-http]$ head index.html 
+head index.html 
 Salted__�Ť2����z7|�7��t�{vu���k��ߝ(*z�	�#��
                                             �c�N�}w{�ISh{�L���W�?�ɾ���t����IpH>��%����~����vG@����Ff"�"���8e,u�2g��X��4:5JO�u�>��{�@'��6�Ȫb��� K�R�y��r���w(��7S1�#myQ���RK-|���H!�ӥ
 ��
@@ -217,7 +218,7 @@ Salted__�Ť2����z7|�7��t�{vu���k��ߝ(*z�	�#��
 ````
 - The decrypted `linpeas.sh`
 ````
-[rocky@rocky secure-http]$ head hidden-file 
+head hidden-file 
 #!/bin/sh
 
 VERSION="ng"
