@@ -2,7 +2,6 @@ import socket                   # Import socket module
 import argparse
 import os 
 import hashlib
-from termcolor import cprint
 from random import randint
 
 __author__ = "ice-wzl"
@@ -49,7 +48,7 @@ if __name__ == "__main__":
     s.send(b"wK1NLC7DUO2N73E1AxGE") #your own secret key, create your own on both the client and server, they must be the same...
 
     with open(args.file, 'wb') as f:
-        cprint('receiving data...', "yellow", attrs=["bold"])
+        print('receiving data...')
         while True:
             data = s.recv(1024)
             if not data:
@@ -57,10 +56,10 @@ if __name__ == "__main__":
             f.write(data)
 
         f.close()
-        cprint('Success', "green", attrs=['bold'])
+        print('Success')
         s.close()
-        cprint('Connection closed\n', attrs=["bold"])
+        print('Connection closed\n')
         do_hashing(args.file)
         get_password = input("Enter password for decryption: ")
         do_decryption(args.file, get_password, args.blend)
-        cprint("File Decrypted", "light_blue", attrs=["bold"])
+        print("File Decrypted")
