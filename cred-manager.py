@@ -5,13 +5,9 @@ import sys
 import sqlite3 
 from termcolor import cprint
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
 from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit import prompt
-from prompt_toolkit.shortcuts import ProgressBar
 from prompt_toolkit.styles import Style
-from prompt_toolkit.shortcuts.progress_bar import formatters
 
 conn = sqlite3.connect('storage.db')
 cursor = conn.cursor()
@@ -74,9 +70,15 @@ def do_create():
     if os.stat("storage.db")[6] > 1:
         print("Table already created")
     else:
-        table = '''CREATE TABLE TARGETS(ID INTEGER PRIMARY KEY, IP VARCHAR(255), USERNAME VARCHAR(255), PASSWORD VARCHAR(255));'''
-        cursor.execute(table)
-        print("Table Created")
+        databse_pass = input("Enter absolute path for storage.db file {/home/user/Documents}: ")
+        try:
+            os.chdir(databse_pass)
+            table = '''CREATE TABLE TARGETS(ID INTEGER PRIMARY KEY, IP VARCHAR(255), USERNAME VARCHAR(255), PASSWORD VARCHAR(255));'''
+            cursor.execute(table)
+            print("Table Created")
+        except:
+            print("Something went wrong, does your path exist...?")
+
 
 def do_delrow():
     if os.stat('storage.db')[6] <= 1:
