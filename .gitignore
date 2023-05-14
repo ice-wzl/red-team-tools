@@ -4,3 +4,5 @@ history.txt
 storage.db
 bandwidth.py
 bwon_logging.txt
+secure-http/index.html
+secure-http/client
