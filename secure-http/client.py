@@ -2,7 +2,6 @@ import socket                   # Import socket module
 import argparse
 import os 
 import hashlib
-from random import randint
 
 __author__ = "ice-wzl"
 __version__ = "0.1.0"
