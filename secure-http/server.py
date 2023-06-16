@@ -55,37 +55,37 @@ if __name__ == "__main__":
     hammer = '\U0001F528'
 
     if not args.ipaddress or not args.port or not args.file:
-        print("Required arguments {ipaddress, port, file}, try again...")
+        print("Required arguments {-i <ip_address>, -p <port>, -f <file>}, try again...")
+    else:
+        port = int(args.port)                    
+        s = socket.socket()             
+        host = args.ipaddress     
+        try:
+            s.bind((host, port))            
+            s.listen(5)                     
+        except OSError as e:
+            print(e)
 
-    port = int(args.port)                    
-    s = socket.socket()             
-    host = args.ipaddress     
-    try:
-        s.bind((host, port))            
-        s.listen(5)                     
-    except OSError as e:
-        print(e)
+        cprint('{} Server hosting {} as index.html at {} on port {} {}\n'.format(hammer, args.file, args.ipaddress, args.port, hammer), attrs=['bold'])
+        pastable()
 
-    cprint('{} Server hosting {} as index.html at {} on port {} {}\n'.format(hammer, args.file, args.ipaddress, args.port, hammer), attrs=['bold'])
-    pastable()
-
-    while True:
-        conn, addr = s.accept()     
-        print('Got connection from {}'.format(addr))
-        data = conn.recv(1024)
-        if b"wK1NLC7DUO2N73E1AxGE" not in data: #secret key to change
-            conn.send(b"Invalid Connection")
-        else:
-            print('Recieved Key: {}'.format(repr(data)))
-            do_encrypt(args.file, "index.html")
-            f = open("index.html",'rb')
-            l = f.read(1024)
-            while (l):
-                conn.send(l)
+        while True:
+            conn, addr = s.accept()     
+            print('Got connection from {}'.format(addr))
+            data = conn.recv(1024)
+            if b"wK1NLC7DUO2N73E1AxGE" not in data: #secret key to change
+                conn.send(b"Invalid Connection")
+            else:
+                print('Recieved Key: {}'.format(repr(data)))
+                do_encrypt(args.file, "index.html")
+                f = open("index.html",'rb')
                 l = f.read(1024)
-            f.close()
-            do_hashing("index.html")
-            conn.close()
+                while (l):
+                    conn.send(l)
+                    l = f.read(1024)
+                f.close()
+                do_hashing("index.html")
+                conn.close()
 
 
 
