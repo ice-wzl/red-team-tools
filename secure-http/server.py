@@ -11,6 +11,8 @@ __author__ = "ice-wzl"
 __version__ = "0.1.0"
 __license__ = "MIT"
 
+#TODO
+
 def do_hashing(ifile):
     get_hash = hashlib.md5(open(ifile, 'rb').read())
     get_final = get_hash.hexdigest()
