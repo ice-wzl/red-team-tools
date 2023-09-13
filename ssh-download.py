@@ -129,7 +129,16 @@ def do_download_large(socket, username):
     Uses zip | gzip
     Should add functionaility to ensure method passed is is actually on device before just running subprocess.Popen
     """
-    pass
+    r_path = input("Enter the file path to grab: ")
+    file_name = r_path.split("/")[-1]
+    l_path = input("Enter path to store file (default /tmp/target): ")
+    if os.path.isdir("/tmp/target") and l_path == "":
+        l_path = "/tmp/target"
+    if validate_path(l_path) == False:
+        print("No such file or directory, try again...")
+    else:
+        subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {} | gzip' > {}/{}".format(socket, username, r_path, l_path, file_name)])
+        return 0
     
 
 
