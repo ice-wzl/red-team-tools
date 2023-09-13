@@ -148,7 +148,13 @@ def do_upload_large(socket, username):
     Two current method are gzip and zip 
     Should add functionaility to ensure method passed is is actually on device before just running subprocess.Popen
     '''
-    pass
+    l_path = input("Enter the abs path of the file to upload: ")
+    if validate_path(l_path) == False:
+        print("No such file or directory, try again...")
+        return 1
+    r_path = input("Enter the path to upload the file to: ")
+    subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'gzip > {}' < {}".format(socket, username, r_path, l_path)])
+    return 0
 
 
 def spawn_shell(socket, username):
