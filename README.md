@@ -226,3 +226,14 @@ ADVISORY="This script should be used for authorized penetration testing and/or e
 ````
 ## Considerations
 - `client.py` was built with only standard library imports as to not require the target machine to have any special installs.  If the target has `python3` installed `client.py` will work!
+# libre-translate-setup.sh
+- Quick script to clone, install and run the offline Libre Tranlate project on your local station.  Avoids having to use Google Translate or a similar source if translating sensitive content.
+- Ensure you use the fully offline version (takes up quite a bit of space) versus the version of this project that utilizes the Google Translate API (to save on space) as you will still be making remote translation requests for your sensitive content.
+# clip.py
+- Simple clipboard manager, always know what is in your clipboard buffer.
+- When you copy something you will see it in this window
+- I make this window small and in the bottom right hand part of my screen.
+```
+python3 clip.py
+````
+- resize the window to your own desire.
