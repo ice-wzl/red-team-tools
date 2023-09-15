@@ -32,7 +32,7 @@ message = [
     ]
 
 #create the prompt suggester
-html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'lupload'])
+html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload'])
 
 ###
 # IDK wtf im doing here 
@@ -140,6 +140,31 @@ def do_download_large(socket, username):
         subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {} | gzip' > {}/{}".format(socket, username, r_path, l_path, file_name)])
         return 0
     
+def download_dir(socket, username):
+    r_path = input("Enter the directory to grab: ")
+    file_name = r_path.split("/")[-1]
+    #recur = input("Recursive download: ")
+    #if recur.lower() == "yes" or recur.lower() == 'y':
+    #    recur = True
+    #else:
+    #    recur = False
+    l_path = input("Enter path to store file (default /tmp/target): ")
+    #need to make below a function
+    if os.path.isdir("/tmp/target") and l_path == "":
+        l_path = "/tmp/target"
+    if validate_path(l_path) == False:
+        print("No such file or directory, try again...")
+        return 1
+    #-----------------
+    #get list of files on remote host 
+    files_in_dir = subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "ls {}" > /tmp/temp'.format(socket, username, r_path)], start_new_session=True)
+    #subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "ls {}" > /tmp/temp'.format(socket, username, r_path)], start_new_session=True)
+    with open('/tmp/temp', 'r') as fp:
+        read_in = fp.read()
+        for i in read_in.split():
+            #subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {}/{} | gzip' > {}/{}".format(socket, username, r_path, i, l_path, i)])
+            subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {}/{}' > {}/{}".format(socket, username, r_path, i, l_path, i)])
+        return 0
 
 
 def do_upload_large(socket, username):
@@ -226,7 +251,10 @@ if __name__ == '__main__':
 
             elif options == 'download':
                 do_download(args.socket, args.username)
-            
+
+            elif options == 'ddownload':
+                download_dir(args.socket, args.username)
+
             elif options == 'upload':
                 do_upload(args.socket, args.username)
 
