@@ -25,39 +25,15 @@ style = Style.from_dict({
         'host':     '#BBEEFF',
         'arrow':     '#00ffff',
     })
-#what the prompt is going to look like localhost -->
+#what the prompt is going to look like remotehost -->
 message = [
     ('class:host',     'remotehost'),
     ('class:arrow',    '--> '),
     ]
 
 #create the prompt suggester
-html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload'])
+html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload', 'test'])
 
-###
-# IDK wtf im doing here 
-###
-# below will work but itll be in the context of your own machine not the remote host 
-# need to get it to be in the context of the remote host 
-def check_command_existence(cmd, socket, username):
-    """
-    Verifies that a given command exists on the machine.
-    :param cmd: The command whose existence we want to check.
-    :return: True if the command is present on the system, False otherwise.
-    """
-    #output = subprocess.Popen(["command", "-v", "%s >/dev/null ; echo $?".format(cmd)])
-    #need subprocess.call here, will steal control from the main script, but it will only be for a second as that command wont hang 
-    """
-    import subprocess
-    return_code = subprocess.call(["ssh", "-S", "/tmp/sock", "pi@", "'id'", ">/dev/null", ";echo", "$?"])
-    if return_code == 0:
-        print("Command executed successfully.")
-    else:
-        print("Command failed with return code", return_code)
-    """
-    output = subprocess.call(["ssh", "-S", "{}", "{}@", "'command -v {}'", ">/dev/null", ";echo", "$?".format(socket, username, cmd)])
-    print(int(output))
-    return int(output) == 0
 
 def check_args(socket, username):
     """
@@ -109,19 +85,7 @@ def do_download(socket, username):
         return 0
       
 
-def do_upload(socket, username):
-    """
-    Uploads a file from your local machine to the remote host
-    l_path is validated, no way to easily validate r_path, should look into later
-    ssh -S /tmp/sock pi@ 'cat > /dev/shm/.a' < /tmp/shell 
-    """
-    l_path = input("Enter the abs path of the file to upload: ")
-    if validate_path(l_path) == False:
-        print("No such file or directory, try again...")
-        return 1
-    r_path = input("Enter the path to upload the file to: ")
-    subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat > {}' < {}".format(socket, username, r_path, l_path)])
-    return 0
+
 
 def do_download_large(socket, username):
     """
@@ -142,12 +106,6 @@ def do_download_large(socket, username):
     
 def download_dir(socket, username):
     r_path = input("Enter the directory to grab: ")
-    file_name = r_path.split("/")[-1]
-    #recur = input("Recursive download: ")
-    #if recur.lower() == "yes" or recur.lower() == 'y':
-    #    recur = True
-    #else:
-    #    recur = False
     l_path = input("Enter path to store file (default /tmp/target): ")
     #need to make below a function
     if os.path.isdir("/tmp/target") and l_path == "":
@@ -166,6 +124,19 @@ def download_dir(socket, username):
             subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {}/{}' > {}/{}".format(socket, username, r_path, i, l_path, i)])
         return 0
 
+def do_upload(socket, username):
+    """
+    Uploads a file from your local machine to the remote host
+    l_path is validated, no way to easily validate r_path, should look into later
+    ssh -S /tmp/sock pi@ 'cat > /dev/shm/.a' < /tmp/shell 
+    """
+    l_path = input("Enter the abs path of the file to upload: ")
+    if validate_path(l_path) == False:
+        print("No such file or directory, try again...")
+        return 1
+    r_path = input("Enter the path to upload the file to: ")
+    subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat > {}' < {}".format(socket, username, r_path, l_path)])
+    return 0
 
 def do_upload_large(socket, username):
     '''
@@ -215,9 +186,6 @@ if __name__ == '__main__':
 
     parser.add_argument("-s", "--socket", action="store", dest="socket")
     parser.add_argument("-u", "--username", action="store", dest="username")
-    #should have a username arg here and then avoid all the prompts for it 
-    #user would set a default username to use for the script 
-    #can have a option to switch the username, would be a command to use 
 
     args = parser.parse_args()
 
@@ -258,13 +226,6 @@ if __name__ == '__main__':
             elif options == 'upload':
                 do_upload(args.socket, args.username)
 
-            elif options == 'test':
-                status = check_command_existence('whoami', args.socket, "x")
-                if status == True:
-                    print("Yes")
-                else:
-                    print("ugh")
-
             elif options == 'ldownload':
                 do_download_large(args.socket, args.username)
 
@@ -274,6 +235,6 @@ if __name__ == '__main__':
 
         
     except:
-        print("You made the panda sad <panda emoji here>")
+        print("You made the mermaid sad " + '\U0001F9DE')
         
 
