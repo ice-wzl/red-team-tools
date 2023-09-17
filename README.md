@@ -164,6 +164,37 @@ total 444
 drwxr-xr-x  2 kali kali   4096 Sep 17 14:09 .
 drwxr-xr-x 17 kali kali 446464 Sep 17 14:09 ..
 ````
+### download 
+- pass in the file to grab
+- pass in the local directory to save the file (default: `/tmp/target`), just hit enter to accept the default
+- ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/7dea3635-de2e-4d13-b305-81c9dd728a31)
+### ldownload 
+- stands for large download.  If you are watching the amount of bytes leaving the remote network this is a good option as it will gzip the files you are collecting
+- helps with large files i.e. the speed will be quicker because the file is compressed
+- same syntax as a normal download `download` command
+- ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/60ff5200-1498-43ea-b53e-e05f56c4d499)
+- as you can see we do not decompress the gzip files once they are on the local host
+    - this was a design decision to save the space on your local ops station
+    - if you want to decompress the file to view them, you can do it yourself
+### ddownload
+- stands for directory download
+- the limitation to this command (i need to update it) is it is not recursive
+- i.e. if there is a situation like this
+````
+tree shodan  
+shodan
+└── collect
+    ├── serve.py
+    └── start_http_server.py
+
+2 directories, 2 files
+````
+- you need to tell the script to collect `/home/kali/Documents/shodan/collect`
+- if you pass in `/home/kali/Documents/shodan` it will will not be recursive
+- if someone wants to throw in a pull request to fix this, that would be more than welcome :)
+- pass in the same items as the normal `download` command except just pass in the directory you want to grab
+- ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/7b3cbd8f-b18f-41bd-a31f-b9e9e0a7b3bd)
+
 
 
 
