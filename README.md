@@ -95,6 +95,79 @@ drwxrwxr-x. 3 rocky rocky   44 Mar 23 16:40 ..
 -rw-rw-r--. 1 rocky rocky 1790 Mar 23 16:48 passwd
 ````
 - The other commands are common linux commands.
+# ssh-download.py
+## Overview 
+- This script will interface with an ssh socket file to allow you to upload/download files in a variety of ways in addition to spawning additional shells
+- Will download/upload single files
+- Will download/upload whole directories
+- Will download/upload files with compression (gzip)
+- All upload and downloads will be encrypted (as it is over your currently established ssh session)
+- run single commands
+- spawn additional shells (if you need a second one or your origional one hangs)
+## Benifits of this tool
+- 1. Allows for quick file collect over ssh
+- 2. Avoids all additional logging. The only thing that will log is your origional ssh connection.
+    - None of your additional shells/file upload/downloads will log at all
+    - Dont believe me, try it yourself.
+### Establish your SSH connection 
+- the most opsec savvy way to ssh to a remote host
+````
+ssh -vx -o ServerAliveInterval=90 -o ServerAliveCountMax=240 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -CMS /tmp/sock -p 22 rocky@10.0.0.3 /bin/sh
+````
+- now in another window start `ssh-download.py`
+- pass in the username you want to use (doesnt really matter what you put here)
+- pass in your socket file you established in your ssh line, for the example it is `/tmp/sock`
+````
+python3 ssh-download.py -s '/tmp/sock' -u x
+
+         ,MMM8&&&.
+    _...MMMMM88&&&&..._
+ .::'''MMMMM88&&&&&&'''::.
+::     MMMMM88&&&&&&     ::
+'::....MMMMM88&&&&&&....::' - Created by: ice-wzl
+   `''''MMMMM88&&&&''''`    - v1.0.0
+         'MMM8&&&'
+
+
+remotehost-->
+````
+- you will be greeted with the prompt
+- to see all available commands hit the `<tab>` character
+- ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/bdbe91d6-529d-40ca-b3ff-2a94800cd5ff)
+### shell
+- spawns a new shell, useful if your origional shell hangs or you want to spawn another one without logging more
+- choose your shell type, or just hit enter to use the default `/bin/sh`
+- ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/38295452-8a6a-4498-9a5e-179f9b124131)
+### cmd
+- use this to run a single cmd, useful for a reverse shell or other commands you dont need the stdout
+- Note: this command will run but you will not see the stdout from the executed command
+- pass in your cmd at the prompt
+- ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/24f9b672-bd7c-470f-a371-a65d52a41e68)
+### exit
+- will exit the script
+- your socket file will still be active due to your master ssh window
+- feel free to rerun the script, it will work as long as your master connection is still active
+### structure 
+- will create a directory called `target` below the file path you pass in
+- for example if you pass in `/tmp` it will create a directory `/tmp/target`
+- if you pass in a path in which `target` already exists the script will inform you of such
+````
+remotehost--> structure                                                                                             
+Enter abs path to create directory tree: /tmp
+2023-09-17 14:09:39,807 - /tmp/target already exists
+remotehost--> structure                                                                                             
+Enter abs path to create directory tree: /home/kali/Documents
+remotehost-->
+--new window--
+ls -la ~/Documents/target
+total 444
+drwxr-xr-x  2 kali kali   4096 Sep 17 14:09 .
+drwxr-xr-x 17 kali kali 446464 Sep 17 14:09 ..
+````
+
+
+
+
 # cred-manager.py 
 ## Overview 
 - Script will manage your credentials for all targets on an engagement.  Ive found this helpful in large enterprises where storing all those key accounts is not practical.
