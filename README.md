@@ -194,10 +194,57 @@ shodan
 - if someone wants to throw in a pull request to fix this, that would be more than welcome :)
 - pass in the same items as the normal `download` command except just pass in the directory you want to grab
 - ![image](https://github.com/ice-wzl/red-team-tools/assets/75596877/7b3cbd8f-b18f-41bd-a31f-b9e9e0a7b3bd)
-
-
-
-
+### upload 
+- upload a file from your ops station to the remote host
+````
+remotehost--> upload                                                                                                
+Enter the abs path of the file to upload: /tmp/shell.elf
+Enter the path to upload the file to: /dev/shm/.a
+remotehost-->
+--on remote host window--
+cd /dev/shm
+ls -la 
+total 76
+drwxrwxrwt  2 root  root     60 Sep 17 14:46 .
+drwxr-xr-x 21 root  root   3280 Sep 17 12:53 ..
+-rw-rw-r--  1 rocky rocky 77235 Sep 17 14:46 .a
+````
+### lupload 
+- stands for large upload
+- like `ldownload` uses gzip to compress your upload
+````
+remotehost--> lupload                                                                                               
+Enter the abs path of the file to upload: /tmp/shell.elf
+Enter the path to upload the file to: /dev/shm/.b
+remotehost-->
+--on remote host-- 
+ls -la 
+total 4
+drwxrwxrwt  2 root  root    60 Sep 17 14:48 .
+drwxr-xr-x 21 root  root  3280 Sep 17 12:53 ..
+-rw-rw-r--  1 rocky rocky 3339 Sep 17 14:48 .b
+cat .b
+���r�}��/0��t�����ʮ�c�`���3C�e���\��9I�}�tO��tٽ^������-����o�t��K����;=���ǿݽ�\^�˻w��c��_~x:?>��?=�{���y<7�����ϻ��˹�?�/�������t��8?
+Д�����nl������h��۲��&)%��Kq~n�R[�.�i���zk)%��%�ʚR"[���4�D��ھiJ�lӒ��M)�m^Z��MRJ`Kݚg�IJ�m�g���Ȗ�\�l�g�j˽�&)%��k�c�   J�m������r����[6A)��7�4�D����ߛ��7l��MSJd���5��?�9��yZ�mv�m��hJ   l�[ki�9�6�q|RSJd��ySM)���,єټ��Rb[2�'5��j��S�:��)%��6�g������P��楳��T���[��;))%����)%�奷���J�m���*%����ѪRb�oGUJ`��Ϋ��&)%�9���R"[2���J�m��nU)�m0�u�J�m��7U)�mZ�m�CUJd�����&�6��������n��C�l/1�
+````
+### dupload 
+- stands for directory upload
+- uploads a local directory to the remote host
+- Note: **The file names in your local directory will be the file names on the remote host** Thus if you need to opsec your tool names do so on your local system **before** you upload the whole directory
+````
+remotehost--> dupload                                                                                               
+Enter the abs path of the directory to upload: /tmp/my_tools
+Enter the path to upload the file to: /dev/shm
+remotehost-->
+--on remote host--
+ls -la /dev/shm
+total 80
+drwxrwxrwt  2 root  root     80 Sep 17 14:52 .
+drwxr-xr-x 21 root  root   3280 Sep 17 12:53 ..
+-rw-rw-r--  1 rocky rocky   119 Sep 17 14:52 libre-translate-setup.sh
+-rw-rw-r--  1 rocky rocky 77235 Sep 17 14:52 shell.elf
+````
+- Happy Hacking :)
 
 # cred-manager.py 
 ## Overview 
