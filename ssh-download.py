@@ -32,7 +32,7 @@ message = [
     ]
 
 #create the prompt suggester
-html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload'])
+html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload', 'dupload'])
 
 
 def check_args(socket, username):
@@ -122,6 +122,7 @@ def download_dir(socket, username):
         for i in read_in.split():
             #subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {}/{} | gzip' > {}/{}".format(socket, username, r_path, i, l_path, i)])
             subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat {}/{}' > {}/{}".format(socket, username, r_path, i, l_path, i)])
+        os.system('rm /tmp/temp')
         return 0
 
 def do_upload(socket, username):
@@ -150,6 +151,17 @@ def do_upload_large(socket, username):
         return 1
     r_path = input("Enter the path to upload the file to: ")
     subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'gzip > {}' < {}".format(socket, username, r_path, l_path)])
+    return 0
+
+def directory_upload(socket, username):
+    #ssh -S /tmp/sock pi@ 'cat > /dev/shm/.a' < /tmp/shell 
+    l_path = input("Enter the abs path of the directory to upload: ")
+    if validate_path(l_path) == False:
+        print("No such file or directory, try again...")
+        return 1
+    r_path = input("Enter the path to upload the file to: ")
+    for i in os.listdir(l_path):
+        subprocess.Popen(["xterm", "-e", "ssh -S {} {}@ 'cat > {}/{}' < {}/{}".format(socket, username, r_path, i, l_path, i)])
     return 0
 
 
@@ -222,6 +234,9 @@ if __name__ == '__main__':
 
             elif options == 'ddownload':
                 download_dir(args.socket, args.username)
+
+            elif options == 'dupload':
+                directory_upload(args.socket, args.username)
 
             elif options == 'upload':
                 do_upload(args.socket, args.username)
