@@ -32,7 +32,7 @@ message = [
     ]
 
 #create the prompt suggester
-html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload', 'test'])
+html_completer = WordCompleter(['shell', 'cmd', 'exit', 'structure', 'download', 'upload', 'ldownload', 'ddownload', 'lupload'])
 
 
 def check_args(socket, username):
@@ -108,7 +108,7 @@ def download_dir(socket, username):
     r_path = input("Enter the directory to grab: ")
     l_path = input("Enter path to store file (default /tmp/target): ")
     #need to make below a function
-    if os.path.isdir("/tmp/target") and l_path == "":
+    if l_path == "" and os.path.exists("/tmp/target"):
         l_path = "/tmp/target"
     if validate_path(l_path) == False:
         print("No such file or directory, try again...")
