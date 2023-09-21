@@ -2,6 +2,7 @@
 import argparse 
 import logging
 import os
+from time import sleep
 import subprocess
 import sys
 from prompt_toolkit import PromptSession
@@ -105,17 +106,34 @@ def do_download_large(socket, username):
         return 0
     
 def download_dir(socket, username):
+    #this function is still extremely flawed 
+    #hangs when you enter /tmp/target as the l_path 
+    #works fine when you just hit enter and the script sets /tmp/target as your l_path
+    #should give the user a choice where to store 
+    #should check that the structure is created before running any command 
+    #should just save it where the user creates the target dir with the dir name being based on the remote host 
+    #no reason to over complicate things here should just be directory to grab and save at structure target remote dir name 
+    #less confusion from the operator pov 
+    #to take it a step further from that should take the entire remote path and create a structure of the remote machine i.e. 
+    #if /home/rocky/Documnets/views directory is collected on the local station should be {structure location}/target/home/rocky/Documents/views/files 
+    #this would help with organization 
     r_path = input("Enter the directory to grab: ")
+    dir_name = r_path.split("/")[-1]
     l_path = input("Enter path to store file (default /tmp/target): ")
+    
     #need to make below a function
     if l_path == "" and os.path.exists("/tmp/target"):
         l_path = "/tmp/target"
     if validate_path(l_path) == False:
         print("No such file or directory, try again...")
         return 1
+    if l_path == "/tmp/target" or l_path == "" and not os.path.exists("/tmp/target/{}".format(dir_name)):
+        os.mkdir("{}/{}".format(l_path, dir_name))
+    l_path = l_path + "/" + dir_name
     #-----------------
     #get list of files on remote host 
     files_in_dir = subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "ls {}" > /tmp/temp'.format(socket, username, r_path)], start_new_session=True)
+    sleep(1.5)
     #subprocess.Popen(['xterm', '-e', 'ssh -S {} {}@ "ls {}" > /tmp/temp'.format(socket, username, r_path)], start_new_session=True)
     with open('/tmp/temp', 'r') as fp:
         read_in = fp.read()
@@ -249,7 +267,7 @@ if __name__ == '__main__':
 
 
         
-    except:
+    except Exception as e:
         print("You made the mermaid sad " + '\U0001F9DE')
-        
+        print(e)
 
