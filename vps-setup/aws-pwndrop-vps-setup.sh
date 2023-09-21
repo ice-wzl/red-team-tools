@@ -6,6 +6,10 @@
 	#curl --insecure 
 	#wget --no-check-certificates 
 
+#to use your own certs 
+	#place your own certs public.crt and private.key in /usr/local/pwndrop/data/ PRE-INSTALL!!
+
+
 UID=`id | cut -d "=" -f2 | cut -d ")" -f1`
 #root check 
 if [ $UID == 0 ]
