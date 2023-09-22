@@ -6,3 +6,4 @@ bandwidth.py
 bwon_logging.txt
 secure-http/index.html
 venv/*
+.idea/
