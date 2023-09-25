@@ -26,7 +26,6 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install black flake8
-        run: pip install -r requirements.txt
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
