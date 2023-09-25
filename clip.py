@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 import pyperclip
-from termcolor import cprint 
+from termcolor import cprint
 
 while True:
     buffer_wait = pyperclip.waitForNewPaste()
