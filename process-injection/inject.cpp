@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 		printf("[!] Failed to change memory permissions: 0x%p\n", GetLastError);
 	}
 	else {
-		printf("[+] Changed memory permisions to RWX :)\n");
+		printf("[+] Changed memory permisions to RX :)\n");
 	}
 
 
