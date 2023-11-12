@@ -102,8 +102,14 @@ int main(int argc, char* argv[]) {
 		printf("[!] Failed to change memory permissions: 0x%p\n", GetLastError);
 		return EXIT_FAILURE;
 	}
+<<<<<<< HEAD
 
 	printf("[+] Changed memory permisions to RWX :)\n");
+=======
+	else {
+		printf("[+] Changed memory permisions to RX :)\n");
+	}
+>>>>>>> 004c786e6cc362970f2b01b2398c558ac53f11b5
 
 
 
