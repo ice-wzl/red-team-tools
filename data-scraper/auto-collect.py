@@ -1,17 +1,11 @@
 #!/usr/bin/python3
 
-"""
-- make a request to the side and view content r.content
-    - search for key words in the content .ssh exploit hacking etc etc
-- if some key words are found go download recursive
-"""
-import argparse
-from colorama import Fore, Back, Style
 import socket
 import requests
 import shodan
 import sys
 from time import sleep
+from colorama import Fore, Back, Style
 from requests.exceptions import ConnectionError, Timeout, RequestException
 from urllib3.exceptions import ConnectionError
 
@@ -19,7 +13,7 @@ from urllib3.exceptions import ConnectionError
 def banner():
     print(
         """
-                  ...                            
+               ...                            
              ;::::;                           
            ;::::; :;                          
          ;:::::'   :;                         
@@ -168,12 +162,44 @@ def key_words(content, ip_addr):
         b"ransom",
         b"ransomware",
         b"collect",
+        b"log4j",
+        b"nuclei"
+        b"gorailgun",
+        b"wormhole",
+        b"gost",
+        b"shellcode",
+        b"redlinestealer"
     ]
     for i in interesting_words:
         if i in content:
             i = i.decode()
             print(Fore.GREEN + "\t{} found at {}".format(i, ip_addr.strip()))
-    # check_exist(ip_addr)
+    if b".ssh/" in content:
+        crawl_ssh(ip_addr)
+
+
+def crawl_ssh(ip_addr):
+    try:
+
+        with requests.sessions.Session() as session:
+            session = get_tor_session()
+            response = session.get(
+                "http://{}:8000/.ssh/".format(ip_addr.strip()),
+                stream=True,
+                timeout=75,
+                proxies=session.proxies,
+            )
+            print(
+                Fore.RESET
+                + "Made request to {}, Status Code: {}".format(
+                    ip_addr.strip(), response.status_code
+                )
+            )
+            site_content = response.content
+            print(site_content)
+
+    except (ConnectionError, Timeout, RequestException):
+        print(Fore.RED + "{}, Host not responsive".format(ip_addr.strip()))
 
 
 def check_exist(ip_addr):
@@ -188,18 +214,14 @@ def check_exist(ip_addr):
             return True
         else:
             # add_entry(ip_addr)
-            with open("history.txt", "a") as fp:
-                fp.write(ip_addr)
+            with open("history.txt", "a") as np:
+                np.write(ip_addr)
 
 
-# def add_entry(ip_addr):
-# with open("history.txt", "a") as fp:
-# fp.write(ip_addr)
-# return 0
 
 
 if __name__ == "__main__":
     banner()
-    do_query(setup_api(), 'Title:"Directory listing for /" port:8000')
+    # do_query(setup_api(), 'Title:"Directory listing for /" port:8000')
     sleep(5.0)
     do_request()
