@@ -222,6 +222,6 @@ def check_exist(ip_addr):
 
 if __name__ == "__main__":
     banner()
-    # do_query(setup_api(), 'Title:"Directory listing for /" port:8000')
+    do_query(setup_api(), 'Title:"Directory listing for /" port:8000')
     sleep(5.0)
     do_request()
