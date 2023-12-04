@@ -1,0 +1,49 @@
+Here are some observations and suggestions for improvement in your code:
+
+    Use of Global State:
+        Global variables such as api_key, session, and file paths are used throughout the code. It's generally better to avoid global state and use function arguments/returns.
+
+    Magic Values:
+        Magic values like "http://icanhazip.com" and port numbers (e.g., 8000) are used directly in the code. Consider defining them as constants at the beginning of your script for better maintainability.
+
+    Error Handling:
+        The exception handling could be more specific. Catching generic exceptions like Exception might hide unexpected errors. Be more precise in catching exceptions relevant to your code.
+
+    Logging:
+        Instead of printing messages directly to the console, consider using a logging library (logging) for better control over log levels and output destinations.
+
+    Code Duplication:
+        The get_tor_session function is defined twice. You can reuse the same function for both tor sessions.
+
+    File Handling:
+        When working with files, consider using the with statement to ensure proper resource management. For example, use with open(...) as fp:.
+
+    Variable Names:
+        Some variable names are quite short (fp, ip). Consider using more descriptive names to improve code readability.
+
+    Comments:
+        While you have some comments, more detailed comments explaining the purpose of functions and complex logic could improve the code's readability.
+
+    API Key Handling:
+        You read the API key from a file but consider enhancing security by encrypting or obfuscating the key.
+
+    Use of sleep:
+        The use of sleep for a fixed duration might not be the most robust way to handle delays. Consider more dynamic approaches like checking the response header for rate-limiting information.
+
+    Exception Messages:
+        Provide informative messages in your exception handling to help users understand the nature of the problem.
+
+    Redundant Code:
+        The second with requests.sessions.Session() as session: in do_request is unnecessary since you already have session defined outside the loop.
+
+    Function Length:
+        Some functions are quite long. Consider breaking them down into smaller, more modular functions to improve readability and maintainability.
+
+    Input Validation:
+        Add input validation to ensure that required files exist before attempting to read from them.
+
+    Concurrency:
+        Depending on your use case, consider using concurrency (e.g., threading or asyncio) to speed up the process, especially during network requests.
+
+    Code Structure:
+        Consider organizing your code into classes and methods to improve structure and readability.
