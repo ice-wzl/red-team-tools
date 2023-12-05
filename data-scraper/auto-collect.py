@@ -11,7 +11,7 @@ from urllib3.exceptions import ConnectionError
 from datetime import datetime
 
 now = datetime.now()
-date_time = now.strftime("%m-%d-%Y-%H:%M:%S")
+date_time = now.strftime("-%m-%d-%Y-%H:%M:%S")
 
 # prints the banner
 def banner():
@@ -122,7 +122,7 @@ def do_request():
                     response = session.get(
                         "http://{}:8000/".format(ip.strip()),
                         stream=True,
-                        timeout=75,
+                        timeout=60,
                         proxies=session.proxies,
                     )
                     print(
@@ -154,6 +154,14 @@ def do_request():
 
 
 def key_words(content, ip_addr):
+    """
+    Function will parse the requested html on the page of the target webserver and examine it for key words defined below
+
+    content: input parameter, this is the html gained from the initial request in do_request()
+    ip_addr: input parameter, this is the ip of the target server
+
+    Return: None
+    """
     interesting_words = [
         b"exploit",
         b"hacking",
@@ -211,28 +219,38 @@ def key_words(content, ip_addr):
         b"redlinestealer"
     ]
     for i in interesting_words:
+        # use if i in content: want to be as permissive as possible on key word matching, do not want to miss Metasploit because we are searching for exactly metasploit
+        # this cuts down on permutations needed like m versus M 
         if i in content:
+            # transform from bytes like object to str in order to parse
             i = i.decode()
+            # log results to standard out for the user
             print(Fore.GREEN + "\t{} found at {}".format(i, ip_addr.strip()))
 
+            # log results to the session_history file
             handle = open("session_history" + date_time, "a+")
             handle.write(Fore.GREEN + "\t{} found at {}\n".format(i, ip_addr.strip()) + Fore.RESET)
             handle.close()
 
+    # we really want to look for ssh keys exposed, see it .ssh is in the html content 
     if b".ssh/" in content:
+        # if it is crawl the .ssh dir down one level 
         crawl_ssh(ip_addr)
 
 
 def crawl_ssh(ip_addr):
+    # define different key types, we really want to be permissive here hitting on anything that is not authorized_keys and known_hosts
+    # should be more permissive here, but this is a good start with all the different key tpyes
     interesting_words = [b"ecdsa", b"rsa", b"pub", b"dsa", b"ecdsa_sk", b"ed25519", b"ed25519_sk"]
     try:
 
         with requests.sessions.Session() as session:
             session = get_tor_session()
+            # make request to ip:8000/.ssh to get the html from that specific directory
             response = session.get(
                 "http://{}:8000/.ssh/".format(ip_addr.strip()),
                 stream=True,
-                timeout=75,
+                timeout=60,
                 proxies=session.proxies,
             )
             print(
@@ -241,10 +259,12 @@ def crawl_ssh(ip_addr):
                     ip_addr.strip(), response.status_code
                 ))
             
+            # log to our session_history file
             handle = open("session_history" + date_time, "a+")
             handle.write(Fore.RESET + "Made request to {}, Status Code: {}\n".format(ip_addr.strip(), response.status_code))
             handle.close()
-
+            
+            # site_content is our html code variable gained from the request
             site_content = response.content
             # debugging line uncomment below 
             # print(site_content)
@@ -262,15 +282,28 @@ def crawl_ssh(ip_addr):
 
 
 def check_exist(ip_addr):
+    """
+    Function will check if the ip we are currently looking at is already one we have seen before 
+    history.txt contains a list of ips that we have already seen before
+
+    ip_addr: input parameter is the current ip we are looking at 
+
+    Return: True || False
+    """
+    # init the ip exists to False we will assume we have not seen this ip before until proven otherwise
     exists = 0
+    # open and read in the file
     with open("history.txt", "r") as fp:
         read_file = fp.readlines()
         for i in read_file:
             if i == ip_addr:
+                # update to true if it does exist
                 exists = 1
+        # let the user know we have seen this ip before
         if exists == 1:
             print("\t{} is in our history file".format(ip_addr.strip("\n")))
 
+            # log to our session_history file
             handle = open("session_history" + date_time, "a+")
             handle.write("\t{} is in our history file\n".format(ip_addr.strip("\n")))
             handle.close()
@@ -280,6 +313,8 @@ def check_exist(ip_addr):
             # add_entry(ip_addr)
             with open("history.txt", "a") as np:
                 np.write(ip_addr)
+            # should return False here, trying that out, remove if it causes issues
+            return False
 
 
 
