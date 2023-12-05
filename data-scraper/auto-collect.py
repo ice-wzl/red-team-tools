@@ -162,62 +162,8 @@ def key_words(content, ip_addr):
 
     Return: None
     """
-    interesting_words = [
-        b"exploit",
-        b"hacking",
-        b".ssh/",
-        b"home/",
-        b"/etc",
-        b"/opt",
-        b".aws/",
-        b"id_rsa",
-        b".viminfo",
-        b".bash_history",
-        b"passwd",
-        b"shadow",
-        b"nmap",
-        b"nessus",
-        b".python_history",
-        b".wget-hsts",
-        b".git/",
-        b"root/",
-        b"victim",
-        b"sqlmap",
-        b"0day",
-        b"wireguard",
-        b"wg/",
-        b".wg-easy/",
-        b"pt/",
-        b"tools/",
-        b"metasploit",
-        b"sliver",
-        b"havoc",
-        b"cobalt_strike",
-        b"cobalt-strike",
-        b"cobalt",
-        b"brute_ratel",
-        b"brute",
-        b"ratel",
-        b"bruteforce",
-        b"mrlapis",
-        b"lockbit",
-        b"revil",
-        b"qbot",
-        b"qakbot",
-        b"malware",
-        b"payload",
-        b"crypter",
-        b"ransom",
-        b"ransomware",
-        b"collect",
-        b"log4j",
-        b"nuclei"
-        b"gorailgun",
-        b"wormhole",
-        b"gost",
-        b"shellcode",
-        b"redlinestealer"
-    ]
+    interesting_words = [b'.aws/', b'.bash_history', b'.git/', b'.python_history', b'.ssh/', b'.viminfo', b'.wg-easy/', b'.wget-hsts', b'/etc', b'/opt', b'0day', b'brute', b'brute_ratel', b'bruteforce', b'cobalt', b'cobalt-strike', b'cobalt_strike', b'collect', b'crypter', b'exploit', b'gost', b'hacking', b'havoc', b'home/', b'id_rsa', b'lockbit', b'log4j', b'malware', b'metasploit', b'mrlapis', b'nessus', b'nmap', b'nucleigorailgun', b'passwd', b'payload', b'pt/', b'qakbot', b'qbot', b'ransom', b'ransomware', b'ratel', b'redlinestealer', b'revil', b'root/', b'shadow', b'shellcode', b'sliver', b'sqlmap', b'tools/', b'victim', b'wg/', b'wireguard', b'wormhole']
+    
     for i in interesting_words:
         # use if i in content: want to be as permissive as possible on key word matching, do not want to miss Metasploit because we are searching for exactly metasploit
         # this cuts down on permutations needed like m versus M 
