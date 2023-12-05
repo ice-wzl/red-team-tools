@@ -87,6 +87,9 @@ def get_tor_session():
     return session
 
 def sanity_check_ip():
+    """
+    Function performs a sanity check against icanhazip.com to ensure you are not leaking your true public ip
+    """
     session = get_tor_session()
     try:
         sanity_check = session.get(
@@ -101,7 +104,6 @@ def sanity_check_ip():
 
 def do_request():
     """
-    Function performs a sanity check against icanhazip.com to ensure you are not leaking your true public ip
     Function with read from results.txt containing our ip addresses
     It will iterate through all the results in the results.txt file and make a request to the ip on port 8000
     It will get the site content html content back and save it in variable site_content
