@@ -14,4 +14,7 @@ for i in journal_logs:
     print(f"[+] Clearning {i}")
     os.system(f"shred -uz {i}")
 
+print("[+] Clearing root .bash_history")
+os.system("echo '' > /root/.bash_history")
+
 print("[+] Done clearning logs")
