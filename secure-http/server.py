@@ -19,7 +19,7 @@ def do_hashing(ifile):
     get_final = get_hash.hexdigest()
     print("Sent encrypted file with MD5: {}".format(get_final))
     cprint(
-        "------------------------------------------------------------",
+        "-" * os.get_terminal_size()[0],
         "red",
         attrs=["bold"],
     )
