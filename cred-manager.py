@@ -55,7 +55,7 @@ def banner():
 |===|  |
 |   |  |
 |   |  | -ice-wzl
-|   | /  -cred-manger v1.0
+|   | /  -cred-manger v1.0.1
 |===|/
 '---'
     """
@@ -70,10 +70,11 @@ def do_view():
     else:
         # easy select * from table
         print("Data in Table:")
+        print("*" * os.get_terminal_size()[0])
         data = cursor.execute("""SELECT * FROM TARGETS""")
         for row in data:
             print(row)
-
+            print("*" * os.get_terminal_size()[0])
 
 def do_add():
     # check that the table has been created if not let them know
