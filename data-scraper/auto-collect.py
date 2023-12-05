@@ -317,13 +317,13 @@ def crawl_ssh(ip_addr):
                     i = i.decode()
                     print(
                         Fore.GREEN
-                        + "\t\t{} found at http://{}:8000/.ssh".format(i, ip_addr)
+                        + "\t\t{} found at http://{}:8000/.ssh".format(i, ip_addr.strip())
                     )
 
                     handle = open("session_history" + date_time, "a+")
                     handle.write(
                         Fore.GREEN
-                        + "\t\t{} found at http://{}:8000/.ssh\n".format(i, ip_addr)
+                        + "\t\t{} found at http://{}:8000/.ssh\n".format(i, ip_addr.strip())
                     )
                     handle.close()
 
