@@ -388,3 +388,34 @@ ADVISORY="This script should be used for authorized penetration testing and/or e
 python3 clip.py
 ````
 - resize the window to your own desire.
+# Data_Scraper Directory
+- In this folder you will find a project for data scraping sensitive information from `python http.server`'s
+- `api.txt` is where you should place your `shodan` api key
+  - Note: In order to conduct this query you will need a `shodan` membership level api key. I am pretty sure this query will not work with just a free `shodan` account
+- `auto_collect.py` is the script that will perform all the actions
+- `history.txt` stores all the ip address the script will visit to ensure we are not visiting and scraping the same ip over and over again
+- `results.txt` this file will store all the ip addresses returned from the shodan query
+## Install
+- I highly recomment using a python3 virtual enviroment for the install and running of this script.
+````
+# create the virtual env
+python3 -m venv venv
+# activate the virtual env
+python3 source/bin/activate
+# install the dependencies
+pip3 install -r requirements.txt
+````
+## Runtime
+- to run the script you need to make sure tor is installed and running
+- i prefer to run tor as a daemon on my vps where this script runs
+````
+sudo apt update
+sudo apt install tor
+sudo systemctl start tor
+sudo systemctl enable tor
+````
+- from there you should be good to go running the script
+````
+python3 auto-collect.py
+````
+- profit
