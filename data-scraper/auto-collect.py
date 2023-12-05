@@ -86,6 +86,18 @@ def get_tor_session():
     session.proxies = {"http": "socks5://127.0.0.1:9050"}
     return session
 
+def sanity_check_ip():
+    session = get_tor_session()
+    try:
+        sanity_check = session.get(
+            "http://icanhazip.com", timeout=60, proxies=session.proxies
+        )
+        sanity_check = sanity_check.content
+        sanity_decoded = sanity_check.decode()
+        print("Your external IP: {}".format(sanity_decoded))
+    except OSError:
+        print(Fore.RED + "Tor is not running on your host")
+        sys.exit(2)
 
 def do_request():
     """
@@ -98,33 +110,37 @@ def do_request():
 
     Return: none
     """
+    sanity_check_ip()
+    #try:
+    
+        #sanity_check = session.get(
+        #    "http://icanhazip.com", timeout=60, proxies=session.proxies
+        #)
+        #sanity_check = sanity_check.content
+        #sanity_decoded = sanity_check.decode()
+        #print("Your external IP: {}".format(sanity_decoded))
+    #except OSError:
+    #    print(Fore.RED + "Tor is not running on your host")
+    #    sys.exit(2)
+    
     # sets up tor socks port as default proxy
     session = get_tor_session()
     # Tor uses the 9050 port as the default socks port
     # Make a request through the Tor connection
     # IP visible through Tor
-    try:
-        sanity_check = session.get(
-            "http://icanhazip.com", timeout=60, proxies=session.proxies
-        )
-        sanity_check = sanity_check.content
-        sanity_decoded = sanity_check.decode()
-        print("Your external IP: {}".format(sanity_decoded))
-    except OSError:
-        print(Fore.RED + "Tor is not running on your host")
-        sys.exit(2)
+
     with open("result.txt", "r") as fp:
         read_in = fp.readlines()
         with requests.sessions.Session() as session:
             for ip in read_in:
                 try:
                     # line below is redundant, should not be needed as it is already defined above
-                    session = get_tor_session()
+                    # session = get_tor_session()
                     response = session.get(
                         "http://{}:8000/".format(ip.strip()),
                         stream=True,
                         timeout=60,
-                        proxies=session.proxies,
+                        proxies=session.proxies
                     )
                     print(
                         Fore.RESET
