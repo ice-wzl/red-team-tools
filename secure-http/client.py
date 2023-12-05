@@ -22,6 +22,26 @@ def do_decryption(input_file, password, output_file):
     )
     return do_dec
 
+def make_request(host, port):
+    s = socket.socket()
+    s.connect((host, int(port)))
+    s.send(
+        b"wK1NLC7DUO2N73E1AxGE"
+    )  # your own secret key, create your own on both the client and server, they must be the same...
+
+    with open(args.file, "wb") as f:
+        print("receiving data...")
+        while True:
+            data = s.recv(1024)
+            if not data:
+                break
+            f.write(data)
+        f.close()
+        print("Success")
+        s.close() 
+        print("Connection closed\n")
+        
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -62,28 +82,8 @@ if __name__ == "__main__":
 
     if not args.ipaddress or not args.port or not args.file or not args.blend:
         print("Required arguments {ipaddress, port, file, blend}, try again...")
-    s = socket.socket()
-    host = args.ipaddress
-    port = args.port
-
-    s.connect((host, int(port)))
-    s.send(
-        b"wK1NLC7DUO2N73E1AxGE"
-    )  # your own secret key, create your own on both the client and server, they must be the same...
-
-    with open(args.file, "wb") as f:
-        print("receiving data...")
-        while True:
-            data = s.recv(1024)
-            if not data:
-                break
-            f.write(data)
-
-        f.close()
-        print("Success")
-        s.close()
-        print("Connection closed\n")
-        do_hashing(args.file)
-        get_password = input("Enter password for decryption: ")
-        do_decryption(args.file, get_password, args.blend)
-        print("File Decrypted")
+    make_request(args.ipaddress, args.port)
+    do_hashing(args.file)
+    get_password = input("Enter password for decryption: ")
+    do_decryption(args.file, get_password, args.blend)
+    print("File Decrypted")
