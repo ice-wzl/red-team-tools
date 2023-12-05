@@ -53,9 +53,9 @@ def banner():
  ///// |
 |~~~|  |
 |===|  |
-|j  |  |
-| g |  | -ice-wzl
-|  t| /  -cred-manger v1.0
+|   |  |
+|   |  | -ice-wzl
+|   | /  -cred-manger v1.0
 |===|/
 '---'
     """
