@@ -13,6 +13,7 @@ from datetime import datetime
 now = datetime.now()
 date_time = now.strftime("-%m-%d-%Y-%H:%M:%S")
 
+
 # prints the banner
 def banner():
     print(
@@ -59,9 +60,9 @@ def setup_api():
 
 def do_query(api, query):
     """
-    Function takes in an api key and a query to perform. 
+    Function takes in an api key and a query to perform.
     Will conduct the query against shodan and print out only the ip addresses into a file called results.txt
-    Has no return value 
+    Has no return value
     """
     # Perform the search
     query = "".join(query)
@@ -88,10 +89,10 @@ def get_tor_session():
 
 def do_request():
     """
-    Function performs a sanity check against icanhazip.com to ensure you are not leaking your true public ip 
-    Function with read from results.txt containing our ip addresses 
+    Function performs a sanity check against icanhazip.com to ensure you are not leaking your true public ip
+    Function with read from results.txt containing our ip addresses
     It will iterate through all the results in the results.txt file and make a request to the ip on port 8000
-    It will get the site content html content back and save it in variable site_content 
+    It will get the site content html content back and save it in variable site_content
     It will check if the ip already exists in our history.txt file, by calling check_exist()
     If it is not in history.txt it will make a call to key_words() to check the html content for key words
 
@@ -117,7 +118,7 @@ def do_request():
         with requests.sessions.Session() as session:
             for ip in read_in:
                 try:
-                    # line below is redundant, should not be needed as it is already defined above 
+                    # line below is redundant, should not be needed as it is already defined above
                     session = get_tor_session()
                     response = session.get(
                         "http://{}:8000/".format(ip.strip()),
@@ -133,10 +134,14 @@ def do_request():
                     )
 
                     handle = open("session_history" + date_time, "a+")
-                    handle.write("Made request to {}, Status Code: {}\n".format(
-                            ip.strip(), response.status_code) + Fore.RESET)
+                    handle.write(
+                        "Made request to {}, Status Code: {}\n".format(
+                            ip.strip(), response.status_code
+                        )
+                        + Fore.RESET
+                    )
                     handle.close()
-                    
+
                     sleep(5.0)
                     # set the request content to a variable for parsing
                     site_content = response.content
@@ -147,9 +152,13 @@ def do_request():
                 # many exceptions to try and handle gracefully
                 except (ConnectionError, Timeout, RequestException):
                     print(Fore.RED + "{}, Host not responsive".format(ip.strip()))
-                    
+
                     handle = open("session_history" + date_time, "a+")
-                    handle.write(Fore.RED + "{}, Host not responsive\n".format(ip.strip()) + Fore.RESET)
+                    handle.write(
+                        Fore.RED
+                        + "{}, Host not responsive\n".format(ip.strip())
+                        + Fore.RESET
+                    )
                     handle.close()
 
 
@@ -162,11 +171,65 @@ def key_words(content, ip_addr):
 
     Return: None
     """
-    interesting_words = [b'.aws/', b'.bash_history', b'.git/', b'.python_history', b'.ssh/', b'.viminfo', b'.wg-easy/', b'.wget-hsts', b'/etc', b'/opt', b'0day', b'brute', b'brute_ratel', b'bruteforce', b'cobalt', b'cobalt-strike', b'cobalt_strike', b'collect', b'crypter', b'exploit', b'gost', b'hacking', b'havoc', b'home/', b'id_rsa', b'lockbit', b'log4j', b'malware', b'metasploit', b'mrlapis', b'nessus', b'nmap', b'nucleigorailgun', b'passwd', b'payload', b'pt/', b'qakbot', b'qbot', b'ransom', b'ransomware', b'ratel', b'redlinestealer', b'revil', b'root/', b'shadow', b'shellcode', b'sliver', b'sqlmap', b'tools/', b'victim', b'wg/', b'wireguard', b'wormhole']
-    
+    interesting_words = [
+        b".aws/",
+        b".bash_history",
+        b".git/",
+        b".python_history",
+        b".ssh/",
+        b".viminfo",
+        b".wg-easy/",
+        b".wget-hsts",
+        b"/etc",
+        b"/opt",
+        b"0day",
+        b"brute",
+        b"brute_ratel",
+        b"bruteforce",
+        b"cobalt",
+        b"cobalt-strike",
+        b"cobalt_strike",
+        b"collect",
+        b"crypter",
+        b"exploit",
+        b"gost",
+        b"hacking",
+        b"havoc",
+        b"home/",
+        b"id_rsa",
+        b"lockbit",
+        b"log4j",
+        b"malware",
+        b"metasploit",
+        b"mrlapis",
+        b"nessus",
+        b"nmap",
+        b"nucleigorailgun",
+        b"passwd",
+        b"payload",
+        b"pt/",
+        b"qakbot",
+        b"qbot",
+        b"ransom",
+        b"ransomware",
+        b"ratel",
+        b"redlinestealer",
+        b"revil",
+        b"root/",
+        b"shadow",
+        b"shellcode",
+        b"sliver",
+        b"sqlmap",
+        b"tools/",
+        b"victim",
+        b"wg/",
+        b"wireguard",
+        b"wormhole",
+    ]
+
     for i in interesting_words:
         # use if i in content: want to be as permissive as possible on key word matching, do not want to miss Metasploit because we are searching for exactly metasploit
-        # this cuts down on permutations needed like m versus M 
+        # this cuts down on permutations needed like m versus M
         if i in content:
             # transform from bytes like object to str in order to parse
             i = i.decode()
@@ -175,21 +238,32 @@ def key_words(content, ip_addr):
 
             # log results to the session_history file
             handle = open("session_history" + date_time, "a+")
-            handle.write(Fore.GREEN + "\t{} found at {}\n".format(i, ip_addr.strip()) + Fore.RESET)
+            handle.write(
+                Fore.GREEN
+                + "\t{} found at {}\n".format(i, ip_addr.strip())
+                + Fore.RESET
+            )
             handle.close()
 
-    # we really want to look for ssh keys exposed, see it .ssh is in the html content 
+    # we really want to look for ssh keys exposed, see it .ssh is in the html content
     if b".ssh/" in content:
-        # if it is crawl the .ssh dir down one level 
+        # if it is crawl the .ssh dir down one level
         crawl_ssh(ip_addr)
 
 
 def crawl_ssh(ip_addr):
     # define different key types, we really want to be permissive here hitting on anything that is not authorized_keys and known_hosts
     # should be more permissive here, but this is a good start with all the different key tpyes
-    interesting_words = [b"ecdsa", b"rsa", b"pub", b"dsa", b"ecdsa_sk", b"ed25519", b"ed25519_sk"]
+    interesting_words = [
+        b"ecdsa",
+        b"rsa",
+        b"pub",
+        b"dsa",
+        b"ecdsa_sk",
+        b"ed25519",
+        b"ed25519_sk",
+    ]
     try:
-
         with requests.sessions.Session() as session:
             session = get_tor_session()
             # make request to ip:8000/.ssh to get the html from that specific directory
@@ -203,24 +277,36 @@ def crawl_ssh(ip_addr):
                 Fore.RESET
                 + "Made request to {}, Status Code: {}".format(
                     ip_addr.strip(), response.status_code
-                ))
-            
+                )
+            )
+
             # log to our session_history file
             handle = open("session_history" + date_time, "a+")
-            handle.write(Fore.RESET + "Made request to {}, Status Code: {}\n".format(ip_addr.strip(), response.status_code))
+            handle.write(
+                Fore.RESET
+                + "Made request to {}, Status Code: {}\n".format(
+                    ip_addr.strip(), response.status_code
+                )
+            )
             handle.close()
-            
+
             # site_content is our html code variable gained from the request
             site_content = response.content
-            # debugging line uncomment below 
+            # debugging line uncomment below
             # print(site_content)
             for i in interesting_words:
                 if i in site_content:
                     i = i.decode()
-                    print(Fore.GREEN + "\t\t{} found at http://{}:8000/.ssh".format(i, ip_addr))
-                    
+                    print(
+                        Fore.GREEN
+                        + "\t\t{} found at http://{}:8000/.ssh".format(i, ip_addr)
+                    )
+
                     handle = open("session_history" + date_time, "a+")
-                    handle.write(Fore.GREEN + "\t\t{} found at http://{}:8000/.ssh\n".format(i, ip_addr))
+                    handle.write(
+                        Fore.GREEN
+                        + "\t\t{} found at http://{}:8000/.ssh\n".format(i, ip_addr)
+                    )
                     handle.close()
 
     except (ConnectionError, Timeout, RequestException):
@@ -229,10 +315,10 @@ def crawl_ssh(ip_addr):
 
 def check_exist(ip_addr):
     """
-    Function will check if the ip we are currently looking at is already one we have seen before 
+    Function will check if the ip we are currently looking at is already one we have seen before
     history.txt contains a list of ips that we have already seen before
 
-    ip_addr: input parameter is the current ip we are looking at 
+    ip_addr: input parameter is the current ip we are looking at
 
     Return: True || False
     """
@@ -253,7 +339,7 @@ def check_exist(ip_addr):
             handle = open("session_history" + date_time, "a+")
             handle.write("\t{} is in our history file\n".format(ip_addr.strip("\n")))
             handle.close()
-            
+
             return True
         else:
             # add_entry(ip_addr)
@@ -263,14 +349,12 @@ def check_exist(ip_addr):
             return False
 
 
-
-
 if __name__ == "__main__":
     # print the banner
     banner()
     # conduct the shodan query to get the results
     do_query(setup_api(), 'Title:"Directory listing for /" port:8000')
-    # sleeps for 5 seconds, should not be needed, test if you can remove this 
+    # sleeps for 5 seconds, should not be needed, test if you can remove this
     sleep(5.0)
     # perform the requests which will loop through the results in results.txt
     do_request()
