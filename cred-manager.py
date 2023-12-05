@@ -121,28 +121,28 @@ def do_delrow():
         cursor.execute("""DELETE FROM TARGETS WHERE ID = %s""" % (ID))
         conn.commit()
 
-
-banner()
-while True:
-    # set up our prompt from prompt_toolkit
-    session = PromptSession()
-    options = session.prompt(message=message, style=style, completer=html_completer)
-    options = options.lower()
-    options = options.rstrip()
-    if options == "view":
-        do_view()
-    elif options == "add":
-        do_add()
-    elif options == "exit":
-        conn.close()
-        sys.exit(1)
-    elif options == "delete":
-        os.system('echo "" > storage.db')
-        print("storage.db cleared...")
-    elif options == "create":
-        do_create()
-    elif options == "delrow":
-        do_delrow()
-    else:
-        # if something crazy is entered at the prompt, give the user the command options
-        cprint("{create | view | add | delete | delrow | exit}", "blue", attrs=["bold"])
+if __name__ == '__main__':
+    banner()
+    while True:
+        # set up our prompt from prompt_toolkit
+        session = PromptSession()
+        options = session.prompt(message=message, style=style, completer=html_completer)
+        options = options.lower()
+        options = options.rstrip()
+        if options == "view":
+            do_view()
+        elif options == "add":
+            do_add()
+        elif options == "exit":
+            conn.close()
+            sys.exit(1)
+        elif options == "delete":
+            os.system('echo "" > storage.db')
+            print("storage.db cleared...")
+        elif options == "create":
+            do_create()
+        elif options == "delrow":
+            do_delrow()
+        else:
+            # if something crazy is entered at the prompt, give the user the command options
+            cprint("{create | view | add | delete | delrow | exit}", "blue", attrs=["bold"])
