@@ -113,31 +113,14 @@ def do_request():
     Return: none
     """
     sanity_check_ip()
-    #try:
-    
-        #sanity_check = session.get(
-        #    "http://icanhazip.com", timeout=60, proxies=session.proxies
-        #)
-        #sanity_check = sanity_check.content
-        #sanity_decoded = sanity_check.decode()
-        #print("Your external IP: {}".format(sanity_decoded))
-    #except OSError:
-    #    print(Fore.RED + "Tor is not running on your host")
-    #    sys.exit(2)
-    
-    # sets up tor socks port as default proxy
-    session = get_tor_session()
-    # Tor uses the 9050 port as the default socks port
-    # Make a request through the Tor connection
-    # IP visible through Tor
 
     with open("result.txt", "r") as fp:
         read_in = fp.readlines()
         with requests.sessions.Session() as session:
             for ip in read_in:
                 try:
-                    # line below is redundant, should not be needed as it is already defined above
-                    # session = get_tor_session()
+                    # line below needed to make request through tor, if you remove it you'll leak your true ip
+                    session = get_tor_session()
                     response = session.get(
                         "http://{}:8000/".format(ip.strip()),
                         stream=True,
@@ -264,14 +247,26 @@ def key_words(content, ip_addr):
             handle.close()
 
     # we really want to look for ssh keys exposed, see it .ssh is in the html content
-    if b".ssh/" in content:
+    options = None
+    if b".ssh/" in content and b"root/" in content:
+        options = "both"
+        crawl_ssh(ip_addr, options)
+    elif b".ssh/" in content:
+        options = "ssh"
         # if it is crawl the .ssh dir down one level
-        crawl_ssh(ip_addr)
+        crawl_ssh(ip_addr, options)
+    elif b"root/" in content:
+        options = "root"
+        crawl_ssh(ip_addr, options)
+    else:
+        pass
+        # means neither were in our content match for root or .ssh
 
 
-def crawl_ssh(ip_addr):
+
+def crawl_ssh(ip_addr, options):
     # define different key types, we really want to be permissive here hitting on anything that is not authorized_keys and known_hosts
-    # should be more permissive here, but this is a good start with all the different key tpyes
+    # should be more permissive here, but this is a good start with all the different key types
     interesting_words = [
         b"ecdsa",
         b"rsa",
@@ -285,12 +280,68 @@ def crawl_ssh(ip_addr):
         with requests.sessions.Session() as session:
             session = get_tor_session()
             # make request to ip:8000/.ssh to get the html from that specific directory
-            response = session.get(
-                "http://{}:8000/.ssh/".format(ip_addr.strip()),
-                stream=True,
-                timeout=60,
-                proxies=session.proxies,
-            )
+            if options == "ssh":
+                response = session.get(
+                    "http://{}:8000/.ssh/".format(ip_addr.strip()),
+                    stream=True,
+                    timeout=60,
+                    proxies=session.proxies,
+                )
+            elif options == "root":
+                response = session.get(
+                    "http://{}:8000/root/.ssh/".format(ip_addr.strip()),
+                    stream=True,
+                    timeout=60,
+                    proxies=session.proxies,
+                )
+            else:
+                response = session.get(
+                    "http://{}:8000/root/.ssh/".format(ip_addr.strip()),
+                    stream=True,
+                    timeout=60,
+                    proxies=session.proxies,
+                )
+                print(
+                    Fore.RESET
+                    + "Made request to {}, Status Code: {}".format(
+                        ip_addr.strip(), response.status_code
+                    )
+                )
+
+                # log to our session_history file
+                handle = open("session_history" + date_time, "a+")
+                handle.write(
+                    Fore.RESET
+                    + "Made request to {}, Status Code: {}\n".format(
+                        ip_addr.strip(), response.status_code
+                    )
+                )
+                handle.close()
+
+                # site_content is our html code variable gained from the request
+                site_content = response.content
+                # debugging line uncomment below
+                # print(site_content)
+                for i in interesting_words:
+                    if i in site_content:
+                        i = i.decode()
+                        print(
+                            Fore.GREEN
+                            + "\t\t{} found at http://{}:8000/.ssh".format(i, ip_addr.strip())
+                        )
+
+                        handle = open("session_history" + date_time, "a+")
+                        handle.write(
+                            Fore.GREEN
+                            + "\t\t{} found at http://{}:8000/.ssh\n".format(i, ip_addr.strip())
+                        )
+                        handle.close()
+                response = session.get(
+                    "http://{}:8000/.ssh/".format(ip_addr.strip()),
+                    stream=True,
+                    timeout=60,
+                    proxies=session.proxies,
+                )
             print(
                 Fore.RESET
                 + "Made request to {}, Status Code: {}".format(
