@@ -1,0 +1,278 @@
+#!/bin/bash
+
+# Function to set color scheme
+set_colors() {
+  echo -ne "\e]10;#ffffff\e\\"  # Set default foreground (white text)
+  echo -ne "\e]11;#004d00\e\\"  # Set default background (dark green)
+}
+
+# Function to print available themes
+print_themes() {
+  echo "Available Themes:"
+  echo "  midnight"
+  echo "  pumpkin_mist"
+  echo "  ocean_breeze"
+  echo "  firestorm"
+  echo "  sunset_glow"
+  echo "  chocolate_delight"
+  echo "  forest_whispers"
+  echo "  lavender_dreams"
+  echo "  raspberry_burst"
+  echo "  sky_illusion"
+  echo "  lemon_zest"
+  echo "  mocha_swirl"
+  echo "  emerald_oasis"
+  echo "  steel_shadows"
+  echo "  cherry_blossom"
+  echo "  teal_serenity"
+  echo "  royal_kingdom"
+  echo "  plum_velvet"
+  echo "  golden_harvest"
+  echo "  coral_reef"
+  echo "  orchid_charm"
+  echo "  indigo_waves"
+  echo "  olive_grove"
+  echo "  rose_petals"
+  echo "  slate_mist"
+  echo "  silver_lining"
+  echo "  mustard_splash"
+  echo "  jade_essence"
+  echo "  grape_nectar"
+  echo "  peach_sunset"
+  echo "  aqua_azure"
+  echo "  cosmic_voyage"
+  echo "  mystic_meadow"
+  echo "  electric_embers"
+  echo "  radiant_rust"
+  echo "  celestial_sapphire"
+  echo "  honey_harmony"
+  echo "  velvet_verdant"
+  echo "  azure_ambiance"
+  echo "  neon_nectar"
+  echo "  moonlit_mist"
+  echo "  tangerine_tango"
+  echo "  aquamarine_delight"
+  echo "  crimson_dreams"
+  echo "  cobalt_cascade"
+  echo "  silver_olive"
+  echo "  apricot_sunset"
+  echo "  indigo_ice"
+  echo "  jade_journey"
+  echo "  raspberry_ripple"
+}
+
+# Check if an argument is provided
+if [ -z "$1" ]; then
+  print_themes
+  exit 0
+fi
+
+# Set colors based on the selected theme
+case "$1" in
+  midnight)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#001f3f\e\\"  # Dark blue background
+    ;;
+  pumpkin_mist)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ff7518\e\\"  # Pumpkin orange background
+    ;;
+  ocean_breeze)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#00afff\e\\"  # Sky blue background
+    ;;
+  firestorm)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#ff0000\e\\"  # Red background
+    ;;
+  sunset_glow)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#ff5733\e\\"  # Sunset orange background
+    ;;
+  chocolate_delight)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#d2691e\e\\"  # Chocolate brown background
+    ;;
+  forest_whispers)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#228b22\e\\"  # Forest green background
+    ;;
+  lavender_dreams)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#e6e6fa\e\\"  # Lavender background
+    ;;
+  raspberry_burst)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#e30b5d\e\\"  # Raspberry pink background
+    ;;
+  sky_illusion)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#87ceeb\e\\"  # Sky blue background
+    ;;
+  lemon_zest)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#fff44f\e\\"  # Lemon yellow background
+    ;;
+  mocha_swirl)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#8b4513\e\\"  # Mocha brown background
+    ;;
+  emerald_oasis)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#2ecc71\e\\"  # Emerald green background
+    ;;
+  steel_shadows)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#b0c4de\e\\"  # Steel blue background
+    ;;
+  cherry_blossom)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ff3535\e\\"  # Cherry red background
+    ;;
+  teal_serenity)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#008080\e\\"  # Teal background
+    ;;
+  royal_kingdom)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#4169e1\e\\"  # Royal blue background
+    ;;
+  plum_velvet)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#dda0dd\e\\"  # Plum purple background
+    ;;
+  golden_harvest)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ffd700\e\\"  # Golden yellow background
+    ;;
+  coral_reef)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ff6f61\e\\"  # Coral orange background
+    ;;
+  orchid_charm)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#9932cc\e\\"  # Orchid purple background
+    ;;
+  indigo_waves)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#4b0082\e\\"  # Indigo blue background
+    ;;
+  olive_grove)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#808000\e\\"  # Olive green background
+    ;;
+  rose_petals)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ff5050\e\\"  # Rose red background
+    ;;
+  slate_mist)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#708090\e\\"  # Slate gray background
+    ;;
+  silver_lining)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#c0c0c0\e\\"  # Silver background
+    ;;
+  mustard_splash)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ffdb58\e\\"  # Mustard yellow background
+    ;;
+  jade_essence)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#00a86b\e\\"  # Jade green background
+    ;;
+  grape_nectar)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#800080\e\\"  # Grape purple background
+    ;;
+  peach_sunset)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ffdab9\e\\"  # Peach sunset background
+    ;;
+  aqua_azure)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#007fff\e\\"  # Aqua blue background
+    ;;
+  cosmic_voyage)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#4b0082\e\\"  # Cosmic purple background
+    ;;
+  mystic_meadow)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#8f9779\e\\"  # Mystic meadow background
+    ;;
+  electric_embers)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#ff4500\e\\"  # Electric orange background
+    ;;
+  radiant_rust)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#8b4513\e\\"  # Radiant rust background
+    ;;
+  celestial_sapphire)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#007fff\e\\"  # Celestial blue background
+    ;;
+  honey_harmony)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ffd700\e\\"  # Honey yellow background
+    ;;
+  velvet_verdant)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#006400\e\\"  # Velvet green background
+    ;;
+  azure_ambiance)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#4682b4\e\\"  # Azure blue background
+    ;;
+  neon_nectar)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ffeb3b\e\\"  # Neon yellow background
+    ;;
+  moonlit_mist)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#b0e0e6\e\\"  # Moonlit mist background
+    ;;
+  tangerine_tango)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#ffa500\e\\"  # Tangerine orange background
+    ;;
+  aquamarine_delight)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#7fffd4\e\\"  # Aquamarine blue background
+    ;;
+  crimson_dreams)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#dc143c\e\\"  # Crimson red background
+    ;;
+  cobalt_cascade)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#0047ab\e\\"  # Cobalt blue background
+    ;;
+  silver_olive)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#708090\e\\"  # Silver olive background
+    ;;
+  apricot_sunset)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#f4a460\e\\"  # Apricot sunset background
+    ;;
+  indigo_ice)
+    echo -ne "\e]10;#000000\e\\"  # Black text
+    echo -ne "\e]11;#4b0082\e\\"  # Indigo ice background
+    ;;
+  jade_journey)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#00a86b\e\\"  # Jade green background
+    ;;
+  raspberry_ripple)
+    echo -ne "\e]10;#ffffff\e\\"  # White text
+    echo -ne "\e]11;#e30b5d\e\\"  # Raspberry ripple background
+    ;;
+  *)
+    echo "Unknown theme. Run the script without arguments to see available themes."
+    exit 1
+    ;;
+esac
+
+echo "Theme '$1' applied successfully!"
