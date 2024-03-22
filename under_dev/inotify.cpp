@@ -120,20 +120,20 @@ int main() {
                     fout << "File deleted: " << file_path << "\n";
                     fout.close();
                 }
-                if (event->mask & IN_MOVED_TO) {
+                /*if (event->mask & IN_MOVED_TO) {
                     std::cout << "File moved to: " << file_path << std::endl;
                     
-                    std::ofstream fout("/tmp/file.txt", std::ios::app);
-                    fout << "File moved to: " << file_path << "\n";
-                    fout.close();
+                    //std::ofstream fout("/tmp/file.txt", std::ios::app);
+                    //fout << "File moved to: " << file_path << "\n";
+                    //fout.close();
                 }
                 if (event->mask & IN_MOVED_FROM) {
                     std::cout << "File moved from: " << file_path << std::endl;
                     
-                    std::ofstream fout("/tmp/file.txt", std::ios::app);
-                    fout << "File moved from: " << file_path << "\n";
-                    fout.close();
-                }
+                    //std::ofstream fout("/tmp/file.txt", std::ios::app);
+                    //fout << "File moved from: " << file_path << "\n";
+                    //fout.close();
+                }*/
             }
             i += EVENT_SIZE + event->len;
         }
